@@ -201,6 +201,7 @@ object Utils {
         ((startPort + offset - 1024) % (65536 - 1024)) + 1024
       }
       try {
+        //创建名字为endpoint-verifier的endpoint实例，用于检索endpoint
         val (service, port) = startService(tryPort)
         log.info(s"Successfully started service$serviceString on port $port.")
         return (service, port)

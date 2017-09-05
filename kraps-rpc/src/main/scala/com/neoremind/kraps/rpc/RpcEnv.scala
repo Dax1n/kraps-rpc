@@ -54,6 +54,7 @@ abstract class RpcEnv(conf: RpcConf) {
 
   /**
     * Retrieve the [[RpcEndpointRef]] represented by `uri` asynchronously.
+    * <br>异步检索RpcEndpointRef
     */
   def asyncSetupEndpointRefByURI(uri: String): Future[RpcEndpointRef]
 
@@ -61,6 +62,7 @@ abstract class RpcEnv(conf: RpcConf) {
     * Retrieve the [[RpcEndpointRef]] represented by `uri`. This is a blocking action.
     */
   def setupEndpointRefByURI(uri: String): RpcEndpointRef = {
+    //uri示例：spark://hello-service@node:8199
     defaultLookupTimeout.awaitResult(asyncSetupEndpointRefByURI(uri))
   }
 

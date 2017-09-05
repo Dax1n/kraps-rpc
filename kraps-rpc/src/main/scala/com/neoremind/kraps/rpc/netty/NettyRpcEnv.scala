@@ -98,7 +98,8 @@ class NettyRpcEnv(
     // here disable security
     val bootstraps: java.util.List[TransportServerBootstrap] = java.util.Collections.emptyList()
     server = transportContext.createServer(bindAddress, port, bootstraps)
-    dispatcher.registerRpcEndpoint(
+    //TODO 创建名字为endpoint-verifier的endpoint实例，用于检索endpoint
+    dispatcher.registerRpcEndpoint( // RpcEndpointVerifier.NAME名字特殊
       RpcEndpointVerifier.NAME, new RpcEndpointVerifier(this, dispatcher))
   }
 
@@ -111,19 +112,31 @@ class NettyRpcEnv(
     dispatcher.registerRpcEndpoint(name, endpoint)
   }
 
+  /**
+    *
+    * @param uri
+    * @return
+    */
   def asyncSetupEndpointRefByURI(uri: String): Future[RpcEndpointRef] = {
-    val addr = RpcEndpointAddress(uri)
+    val addr = RpcEndpointAddress(uri)//地址封装成RpcEndpointAddress
     val endpointRef = new NettyRpcEndpointRef(conf, addr, this)
-    val verifier = new NettyRpcEndpointRef(
-      conf, RpcEndpointAddress(addr.rpcAddress, RpcEndpointVerifier.NAME), this)
+    // 每一个节点在启动我们自定义的EndPoint的时候，都会启动一个名字为endpoint-verifier的Rpc实例用来检索我们需要的endPointRef实例
+    // endpoint-verifier的url：endpoint-verifier@node:8199的ref
+    val verifier = new NettyRpcEndpointRef(conf, RpcEndpointAddress(addr.rpcAddress, RpcEndpointVerifier.NAME), this)
+
+    //createCheckExistence方法作用：创建一个消息CheckExistence的实例，用来发送给远端检查
     verifier.ask[Boolean](RpcEndpointVerifier.createCheckExistence(endpointRef.name)).flatMap { find =>
       if (find) {
+        //消息存在的话，返回
         Future.successful(endpointRef)
       } else {
+        //不存在返回一个异常
         Future.failed(new RpcEndpointNotFoundException(uri))
       }
     }(ThreadUtils.sameThread)
   }
+
+
 
   override def stop(endpointRef: RpcEndpointRef): Unit = {
     require(endpointRef.isInstanceOf[NettyRpcEndpointRef])
@@ -320,11 +333,12 @@ object NettyRpcEnvFactory extends RpcEnvFactory {
     // Use JavaSerializerInstance in multiple threads is safe. However, if we plan to support
     // KryoSerializer in future, we have to use ThreadLocal to store SerializerInstance
     val javaSerializerInstance =
-    new JavaSerializer(conf).newInstance().asInstanceOf[JavaSerializerInstance]
+      new JavaSerializer(conf).newInstance().asInstanceOf[JavaSerializerInstance]
     val nettyEnv =
       new NettyRpcEnv(conf, javaSerializerInstance, config.bindAddress)
     if (!config.clientMode) {
       val startNettyRpcEnv: Int => (NettyRpcEnv, Int) = { actualPort =>
+        //TODO 入口，启动Server
         nettyEnv.startServer(config.bindAddress, actualPort)
         (nettyEnv, nettyEnv.address.port)
       }

@@ -53,6 +53,11 @@ private[netty] object RpcEndpointVerifier {
     }
   }
 
+  /**
+    * CheckExistence is the  message that is used to ask the remote [[RpcEndpointVerifier]] if an `RpcEndpoint` exists.
+    * @param name
+    * @return 返回一个CheckExistence消息实例
+    */
   def createCheckExistence(name: String) = {
     new CheckExistence(name)
   }
