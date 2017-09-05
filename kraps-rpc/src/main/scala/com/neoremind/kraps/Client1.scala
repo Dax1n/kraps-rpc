@@ -25,6 +25,8 @@ object Client1 {
     //获取地址为node，端口为8199的名字为hello-service的Rpc实例的ref
     //TODO 检索过程：借助名字为endpoint-verifier的EndPoint检索是否存在！
     val endPointRef: RpcEndpointRef = rpcEnv.setupEndpointRef(RpcAddress("node", 8199), "hello-service")
+
+    //TODO 发送消息使用的是TransportClient类，底层实现使用的Netty的管道进行通信
     val future: Future[String] = endPointRef.ask[String](SayHi("neo"+UUID.randomUUID().toString))
 
     future.onComplete {//回调的方式获取结果
