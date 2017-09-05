@@ -24,10 +24,11 @@ object Client1 {
     val rpcEnv: RpcEnv = NettyRpcEnvFactory.create(config)
     //获取地址为node，端口为8199的名字为hello-service的Rpc实例的ref
     //TODO 检索过程：借助名字为endpoint-verifier的EndPoint检索是否存在！
-    val endPointRef: RpcEndpointRef = rpcEnv.setupEndpointRef(RpcAddress("node", 8199), "hello-service")
+    val endPointRef: RpcEndpointRef = rpcEnv.setupEndpointRef(RpcAddress("localhost", 8199), "hello-service")
 
     //TODO 发送消息使用的是TransportClient类，底层实现使用的Netty的管道进行通信
     val future: Future[String] = endPointRef.ask[String](SayHi("neo"+UUID.randomUUID().toString))
+    //服务器端使用TransportChannelHandler接受数据处理
 
     future.onComplete {//回调的方式获取结果
       case scala.util.Success(value) => {
