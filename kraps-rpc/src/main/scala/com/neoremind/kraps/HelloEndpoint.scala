@@ -1,4 +1,4 @@
-package com.neoremind.kraps
+package sparkRpc
 
 import net.neoremind.kraps.rpc.{RpcEnv, RpcEndpoint, RpcCallContext}
 

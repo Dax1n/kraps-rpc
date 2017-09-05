@@ -34,6 +34,7 @@ case class RpcConf(loadDefaults: Boolean = true) extends Cloneable with Serializ
 
   def loadFromSystemProperties(silent: Boolean): RpcConf = {
     // Load any spark.* system properties
+
     for ((key, value) <- Utils.getSystemProperties if key.startsWith("spark.")) {
       set(key, value)
     }
