@@ -63,6 +63,7 @@ abstract class RpcEnv(conf: RpcConf) {
     */
   def setupEndpointRefByURI(uri: String): RpcEndpointRef = {
     //uri示例：spark://hello-service@node:8199
+    // 服务名字@主机地址:端口
     defaultLookupTimeout.awaitResult(asyncSetupEndpointRefByURI(uri))
   }
 
@@ -118,6 +119,11 @@ case class RpcEnvServerConfig(conf: RpcConf,
   override def clientMode: Boolean = false
 }
 
+/**
+  *
+  * @param conf rpc 名字
+  * @param name rpc服务名字
+  */
 case class RpcEnvClientConfig(conf: RpcConf,
                               name: String) extends RpcEnvConfig {
   override def bindAddress: String = null

@@ -38,6 +38,12 @@ import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 import scala.util.{DynamicVariable, Failure, Success}
 
+/**
+  *
+  * @param conf
+  * @param javaSerializerInstance
+  * @param host
+  */
 class NettyRpcEnv(
                    val conf: RpcConf,
                    javaSerializerInstance: JavaSerializerInstance,
@@ -81,6 +87,8 @@ class NettyRpcEnv(
   /**
     * A map for [[RpcAddress]] and [[Outbox]]. When we are connecting to a remote [[RpcAddress]],
     * we just put messages to its [[Outbox]] to implement a non-blocking `send` method.
+    *
+    *一个RPC地址与OutBox的映射
     */
   private val outboxes = new ConcurrentHashMap[RpcAddress, Outbox]()
 
@@ -114,7 +122,7 @@ class NettyRpcEnv(
 
   /**
     *
-    * @param uri
+    * @param uri  服务名字@主机地址:端口号
     * @return
     */
   def asyncSetupEndpointRefByURI(uri: String): Future[RpcEndpointRef] = {
@@ -124,7 +132,7 @@ class NettyRpcEnv(
     // endpoint-verifier的url：endpoint-verifier@node:8199的ref
     val verifier = new NettyRpcEndpointRef(conf, RpcEndpointAddress(addr.rpcAddress, RpcEndpointVerifier.NAME), this)
 
-    //createCheckExistence方法作用：创建一个消息CheckExistence的实例，用来发送给远端检查
+    //createCheckExistence方法作用：创建一个消息CheckExistence实例，用来发送给远端检查是否存在endpoint
     verifier.ask[Boolean](RpcEndpointVerifier.createCheckExistence(endpointRef.name)).flatMap { find =>
       if (find) {
         //消息存在的话，返回
@@ -144,7 +152,7 @@ class NettyRpcEnv(
   }
 
   private def postToOutbox(receiver: NettyRpcEndpointRef, message: OutboxMessage): Unit = {
-    if (receiver.client != null) {
+    if (receiver.client != null) {// receiver.client为TransportClient
       message.sendWith(receiver.client)
     } else {
       require(receiver.address != null,
@@ -188,6 +196,11 @@ class NettyRpcEnv(
     }
   }
 
+  /**
+    * 创建TransportClient 传输客户端
+    * @param address 目标地址
+    * @return
+    */
   private[netty] def createClient(address: RpcAddress): TransportClient = {
     clientFactory.createClient(address.host, address.port)
   }

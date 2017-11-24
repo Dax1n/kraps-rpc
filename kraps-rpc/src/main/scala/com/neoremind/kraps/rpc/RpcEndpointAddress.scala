@@ -26,7 +26,7 @@ import net.neoremind.kraps.RpcException
   * The `rpcAddress` may be null, in which case the endpoint is registered via a client-only
   * connection and can only be reached via the client that sent the endpoint reference.
   *
-  * @param rpcAddress The socket address of the endpoint.
+  * @param rpcAddress The socket address of the endpoint.(是由host和port组成)
   * @param name Name of the endpoint.
   */
 case class RpcEndpointAddress(val rpcAddress: RpcAddress, val name: String) {
@@ -44,8 +44,18 @@ case class RpcEndpointAddress(val rpcAddress: RpcAddress, val name: String) {
   }
 }
 
+/**
+  *伴生对象，其实例class有由host、port以及name（服务名字组成）
+  */
 object RpcEndpointAddress {
 
+  /**
+    *
+    * @param host
+    * @param port
+    * @param name 服务名字
+    * @return
+    */
   def apply(host: String, port: Int, name: String): RpcEndpointAddress = {
     new RpcEndpointAddress(host, port, name)
   }
