@@ -191,7 +191,7 @@ public class TransportClientFactory implements Closeable {
   /** Create a completely new {@link TransportClient} to the remote address. */
   private TransportClient createClient(InetSocketAddress address) throws IOException {
     logger.debug("Creating new connection to {}", address);
-
+    //Netty的Bootstrap
     Bootstrap bootstrap = new Bootstrap();
     bootstrap.group(workerGroup)
       .channel(socketChannelClass)
