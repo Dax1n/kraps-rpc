@@ -43,6 +43,16 @@ trait RpcEnvFactory {
   *
   * If any error is thrown from one of [[RpcEndpoint]] methods except `onError`, `onError` will be
   * invoked with the cause. If `onError` throws an error, [[RpcEnv]] will ignore it.
+  *
+  *
+  *
+  * <br><br>
+  * RpcEndpoint定义了RPC通信过程中的通信端对象，
+  * 除了具有管理一个RpcEndpoint生命周期的操作（constructor -> onStart -> receive* -> onStop），
+  * 并给出了通信过程中一个RpcEndpoint所具有的基于事件驱动的行为（连接、断开、网络异常），
+  * 实际上对于Spark框架来说主要是接收消息并处理，具体可以看对应特质RpcEndpoint的代码定义。
+  *
+  * <br><br>Master、Worker等等
   */
 trait RpcEndpoint {
 

@@ -167,6 +167,10 @@ private[netty] class Inbox(
     }
   }
 
+  /**
+    * 将消息存储信箱中
+    * @param message
+    */
   def post(message: InboxMessage): Unit = inbox.synchronized {
     if (stopped) {
       // We already put "OnStop" into "messages", so we should drop further messages

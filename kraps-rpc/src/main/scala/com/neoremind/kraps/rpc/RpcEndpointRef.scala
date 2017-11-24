@@ -26,8 +26,12 @@ import org.slf4j.LoggerFactory
 
 /**
   * A reference for a remote [[RpcEndpoint]]. [[RpcEndpointRef]] is thread-safe.
+  * <br><br>
+  * RpcEndpointRef是一个对RpcEndpoint的远程引用对象，
+  * 通过它可以向远程的RpcEndpoint端发送消息以进行通信。
+  *
   */
-abstract class RpcEndpointRef(conf: RpcConf) extends Serializable  {
+abstract class RpcEndpointRef(conf: RpcConf) extends Serializable {
 
   private val log = LoggerFactory.getLogger(classOf[RpcEndpointRef])
 

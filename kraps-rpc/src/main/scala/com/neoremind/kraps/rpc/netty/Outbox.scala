@@ -87,11 +87,16 @@ private[netty] case class RpcOutboxMessage(
 
 }
 
+/**
+  *
+  * @param nettyEnv
+  * @param address
+  */
 private[netty] class Outbox(nettyEnv: NettyRpcEnv, val address: RpcAddress) {
 
   outbox => // Give this an alias so we can use it more clearly in closures.
 
-  @GuardedBy("this")
+  @GuardedBy("this")  //@GuardedBy( "this" ) 受对象内部锁保护
   private val messages = new java.util.LinkedList[OutboxMessage]
 
   @GuardedBy("this")
@@ -148,6 +153,8 @@ private[netty] class Outbox(nettyEnv: NettyRpcEnv, val address: RpcAddress) {
         // We are connecting to the remote address, so just exit
         return
       }
+
+      //初始化连接客户端
       if (client == null) {
         // There is no connect task but client is null, so we need to launch the connect task.
         launchConnectTask()

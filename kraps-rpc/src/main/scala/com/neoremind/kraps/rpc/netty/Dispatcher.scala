@@ -32,24 +32,34 @@ import org.slf4j.LoggerFactory
 
 /**
   * A message dispatcher, responsible for routing RPC messages to the appropriate endpoint(s).
+  * 消息路由器，负责路由RPC消息的。
   */
 private[netty] class Dispatcher(nettyEnv: NettyRpcEnv) {
 
   private val log = LoggerFactory.getLogger(classOf[Dispatcher])
 
+  /**
+    * RpcEndpoint与RpcEndpointRef的绑定关系
+    *
+    * @param name
+    * @param endpoint
+    * @param ref
+    */
   private class EndpointData(
                               val name: String,
                               val endpoint: RpcEndpoint,
                               val ref: NettyRpcEndpointRef) {
+
     val inbox = new Inbox(ref, endpoint)
   }
 
-  private val endpoints: ConcurrentMap[String, EndpointData] =
-    new ConcurrentHashMap[String, EndpointData]
-  private val endpointRefs: ConcurrentMap[RpcEndpoint, RpcEndpointRef] =
-    new ConcurrentHashMap[RpcEndpoint, RpcEndpointRef]
+  private val endpoints: ConcurrentMap[String, EndpointData] = new ConcurrentHashMap[String, EndpointData]
+
+  private val endpointRefs: ConcurrentMap[RpcEndpoint, RpcEndpointRef] = new ConcurrentHashMap[RpcEndpoint, RpcEndpointRef]
 
   // Track the receivers whose inboxes may contain messages.
+  //TODO receivers的大小和net.neoremind.kraps.rpc.netty.Dispatcher.EndpointData.inbox是同步变化的，
+  //TODO 每一次在从receivers中获取EndpointData，然后再根据EndpointData消耗其中的消息
   private val receivers = new LinkedBlockingQueue[EndpointData]
 
   /**
@@ -149,12 +159,13 @@ private[netty] class Dispatcher(nettyEnv: NettyRpcEnv) {
                            message: InboxMessage,
                            callbackIfStopped: (Exception) => Unit): Unit = {
     val error = synchronized {
-      val data = endpoints.get(endpointName)
+      val data = endpoints.get(endpointName) //EndpointData，RpcEndpoint与RpcEndpointRef的绑定关系
       if (stopped) {
         Some(new RpcEnvStoppedException())
       } else if (data == null) {
         Some(new RpcException(s"Could not find $endpointName."))
       } else {
+        //内部类MessageLoop负责处理
         data.inbox.post(message)
         receivers.offer(data)
         None
@@ -189,10 +200,14 @@ private[netty] class Dispatcher(nettyEnv: NettyRpcEnv) {
     endpoints.containsKey(name)
   }
 
-  /** Thread pool used for dispatching messages. */
+  /** Thread pool used for dispatching messages.<br>
+    * net.neoremind.kraps.rpc.netty.Dispatcher#threadpool()
+    */
+  //TODO 启动消息循环处理器
   private val threadpool: ThreadPoolExecutor = {
     val numThreads = nettyEnv.conf.getInt("spark.rpc.netty.dispatcher.numThreads",
       math.max(2, Runtime.getRuntime.availableProcessors()))
+    //Daemon线程，无需shutdown
     val pool = ThreadUtils.newDaemonFixedThreadPool(numThreads, "dispatcher-event-loop")
     for (i <- 0 until numThreads) {
       pool.execute(new MessageLoop)
@@ -206,9 +221,10 @@ private[netty] class Dispatcher(nettyEnv: NettyRpcEnv) {
       try {
         while (true) {
           try {
-            val data = receivers.take()
+            val data = receivers.take() // EndpointData，RpcEndpoint与RpcEndpointRef的绑定关系
             if (data == PoisonPill) {
               // Put PoisonPill back so that other MessageLoops can see it.
+              //如果是毒药的话，再次存储消息队列中，以便其他线程能看到
               receivers.offer(PoisonPill)
               return
             }
