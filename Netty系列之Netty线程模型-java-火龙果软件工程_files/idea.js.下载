@@ -1,0 +1,44 @@
+
+{
+document.writeln("<table width='100%' border='0' align='center' valign='middle' cellpadding='0' cellspacing='0' class='content'>")
+	
+	
+	
+	
+	
+	document.writeln("<tr><td  width='7%' height='20'></td></tr>");
+	
+	
+	document.writeln("<TR><td><table border='0' cellpadding='0' cellspacing='0' width='100%'>");
+		document.writeln("<tr><td width='6%' rowspan='4'><a href='http://www.uml.com.cn/communicate/2017-12-2.asp'target='_blank'><img src='http://www.uml.com.cn/communicate/images/20171028dwz.jpg' width='100' border='0'></a></td><td width='94%' height='30'><a href='http://www.uml.com.cn/communicate/2017-12-2.asp' target='_blank' class='contnew_a'><font color='880015'>&nbsp;讲座 </font> MySQL架构设计</a></td></tr>");
+		document.writeln("<tr><td height='30'><a href='http://www.uml.com.cn/communicate/2017-12-2.asp' target='_blank' class='contnew_a'>&nbsp;讲师: 杜伟忠</a></td></tr>");
+		document.writeln("<tr><td height='30'><a href='http://www.uml.com.cn/communicate/2017-12-2.asp' target='_blank' class='contnew_a'>&nbsp;时间： 2017-12-16</a></td></tr>");
+	
+		document.writeln("<tr><td >&nbsp;</td></tr>");
+	document.writeln("</table></td></TR>");	
+	
+		
+	document.writeln("<tr><td height='20' >&nbsp;</td></tr>");
+	document.writeln("</table></td></TR>");
+	
+		
+		
+			document.writeln("<tr><td height='25'colspan='2'valign='bottom'><a href='http://video.uml.com.cn/video/broh5.asp?vidID=2864' target='_blank' class='contnew_a'><font color='880015' style='font-size:15px;font-weight:bold'>&nbsp;实录 </font>&nbsp;C语言面向对象</a></td></tr>");
+	document.writeln("<tr><td  height='25' colspan='2'  valign='bottom'><a  href='http://video.uml.com.cn/video/broh5.asp?vidID=2864' target='_blank' class='contnew_a'>&nbsp;主讲：宋宝华 </a></td></tr>");
+	document.writeln("<tr><td  height='25' colspan='2' valign='bottom'><a  href='http://video.uml.com.cn/video/broh5.asp?vidID=2864' target='_blank' class='contnew_a'>《Linux设备驱动开发详解》的作者</a></td></tr>");
+	document.writeln("<tr><td height='30' >&nbsp;</td></tr>");
+		
+		
+	document.writeln("<tr><td height='25'colspan='2'valign='bottom'><a href='http://video.uml.com.cn/video/broh5.asp?vidID=2846' target='_blank' class='contnew_a'><font color='880015'  style='font-size:15px;font-weight:bold'>&nbsp;实录 </font>&nbsp;基于Tensorflow进行深度学习 </a></td></tr>");
+	document.writeln("<tr><td height='25'colspan='2'valign='bottom'><a href='http://video.uml.com.cn/video/broh5.asp?vidID=2846' target='_blank' class='contnew_a'>&nbsp;主讲：钱兴会 </a></td></tr>");
+	document.writeln("<tr><td height='25'colspan='2'valign='bottom'><a href='http://video.uml.com.cn/video/broh5.asp?vidID=2846' target='_blank' class='contnew_a'>曾任联想集团大数据平台架构师</a></td></tr>");
+			
+	
+	
+document.writeln("</table>");
+
+
+
+}
+
+

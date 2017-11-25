@@ -1,0 +1,1327 @@
+
+<!-- saved from url=(0040)http://www.uml.org.cn/j2ee/201408283.asp -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=GBK">
+
+<title>Netty系列之Netty线程模型-java-火龙果软件工程</title>
+<link href="./Netty系列之Netty线程模型-java-火龙果软件工程_files/style.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+<!--
+
+.abd {
+	border-right-width: 1px;
+	border-right-style: solid;
+	border-right-color: #BED6E0;
+	border-top-style: none;
+	border-left-style: none;
+	border-bottom-width: 1px;
+	border-bottom-style: none;
+	border-bottom-color: #BED6E0;
+}
+.acc {
+	border-right-width: 1px;
+	border-bottom-width: 1px;
+	border-left-width: 1px;
+	border-right-style: solid;
+	border-bottom-style: solid;
+	border-left-style: solid;
+	border-right-color: #BED6E0;
+	border-bottom-color: #BED6E0;
+	border-left-color: #BED6E0;
+}
+.kuang {
+	border: 1px solid BED6E0;
+}
+-->
+</style>
+<style type="text/css">
+<!--
+.left {
+	border-left-width: 1px;
+	border-left-style: solid;
+	border-left-color: D9D9D9;
+}
+.unnamed4 {
+	border: thin none;
+	height: auto;
+	width: auto;
+	left: 20px;
+	top: 20px;
+	right: 0px;
+	bottom: 20px;
+}
+-->
+</style>
+<link href="./Netty系列之Netty线程模型-java-火龙果软件工程_files/artstyle.css" rel="stylesheet" type="text/css">
+<link href="./Netty系列之Netty线程模型-java-火龙果软件工程_files/style.css" rel="stylesheet" type="text/css"><link href="./Netty系列之Netty线程模型-java-火龙果软件工程_files/bdsstyle.css" rel="stylesheet" type="text/css"></head>
+
+
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" bgcolor="#F5F5F5" style="position: static;"><iframe frameborder="0" style="display: none;" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/saved_resource.html"></iframe><link href="./Netty系列之Netty线程模型-java-火龙果软件工程_files/jiathis_share.css" rel="stylesheet" type="text/css"><iframe frameborder="0" style="position: absolute; display: none; opacity: 0;" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/saved_resource(1).html"></iframe><div class="jiathis_style" style="position: absolute; z-index: 1000000000; display: none; top: 50%; left: 50%; overflow: auto;"></div><div class="jiathis_style" style="position: absolute; z-index: 1000000000; display: none; overflow: auto;"></div><iframe frameborder="0" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/jiathis_utility.html" style="display: none;"></iframe><noscript>
+&lt;iframe src="保密的网页名.htm"&gt;&lt;/iframe&gt;
+</noscript>
+
+<link href="./Netty系列之Netty线程模型-java-火龙果软件工程_files/style.css" rel="stylesheet" type="text/css">
+<link href="./Netty系列之Netty线程模型-java-火龙果软件工程_files/pxgk.css" rel="stylesheet" type="text/css">
+<link href="./Netty系列之Netty线程模型-java-火龙果软件工程_files/vedio.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+
+<!--
+@media (max-width: 986px) {
+  .yc {
+    display: none !important; 
+  } 
+  
+  
+  
+  }
+}
+.artsect{color:#242424; font-family:"微软雅黑";font-size:14px; line-height: 18px}
+
+.hdtop_a
+{      color:#ffffff;
+        font-family:"微软雅黑";
+        font-size:13px; 
+		font-weight:bold;
+		line-height:30px;
+		height: 30px; 
+		text-decoration:none; 
+}
+.hdtop_a:link
+{	color: #ffffff;
+	font-family:"微软雅黑";
+	font-size:13px;
+	font-weight:bold;
+	
+	
+}
+.hdtop_a:visited
+{       color:#ffffff;
+        font-family:"微软雅黑";
+        font-size:13px;
+		font-weight:bold;
+} 
+.hdtop_a:hover
+{
+	color:#ffffff;
+	font-family:"微软雅黑";
+	font-size:13px;
+	font-weight:bold;
+} 
+-->
+</style>
+<script type="text/javascript">
+ 
+<!--
+ 
+    function txtFocus() {
+ 
+       var e = window.event;
+ 
+       var obj = e.srcElement;   //当前对象
+ 
+       obj.style.background = "#FFFFFF";
+ 
+    }
+ 
+    
+
+    function txtBlur() {
+ 
+       var e = window.event;
+ 
+       var obj = e.srcElement;
+ 
+       obj.style.background = "#404040";
+ 
+    }
+ 
+-->
+ 
+</script>
+
+
+
+<noscript>&lt;iframe src=*&gt;&lt;/iframe&gt;</noscript>
+<style>
+body {
+margin: 0px;padding:0
+
+}
+#div1 {
+display: none;
+position: absolute;
+z-index: 1000;
+height: 100%;
+width: 100%;
+background: #000000;
+filter:Alpha(opacity=30);
+opacity: .3;
+-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)"; 
+}
+
+#div3 {
+display: none;
+position: absolute;
+height: 100%;
+width: 100%;
+padding-top: 15%;
+z-index: 1000;
+left: 0px;
+top: 0px;
+}
+
+#contentday_a
+{     
+        font-family:"微软雅黑";
+        font-size:16px; 
+}
+
+#contentday1_a
+{     
+        font-family:"微软雅黑";
+        font-size:13px; 
+}
+.contnewnew_a
+{      color:#000000;
+        font-family:"微软雅黑";
+        font-size:16px; 
+		text-decoration: none;
+		
+}
+.contnewnew_a:link
+{	 color:#000000;
+        font-family:"微软雅黑";
+        font-size:16px; 
+		text-decoration: none;
+	
+}
+.contnewnew_a:visited
+{       color:#000000;
+        font-family:"微软雅黑";
+        font-size:16px; 
+		text-decoration: none;
+		
+} 
+.contnewnew_a:hover
+{
+	 color:#000000;
+        font-family:"微软雅黑";
+        font-size:16px; 
+		text-decoration: none;
+	
+} 
+#addiv1{
+position: absolute;
+height: 100%;
+width: 100%;
+padding-top:300px;
+z-index: 1000;
+left: 400;
+top: 0px;
+}
+
+#addiv2{
+position: absolute;
+height: 100%;
+width: 100%;
+padding-top: 305px;
+z-index: 1001;
+left: 927;
+top: 0px;
+}
+
+#addiv4{
+position:absolute;
+z-index:999;
+height:100%;
+width:100%;
+background:#000000;
+filter:Alpha(opacity=30);
+opacity:.3;
+-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)"; 
+}
+
+</style>
+
+
+
+<script>
+
+function openjz(){
+document.getElementById('div1').style.display='block';
+document.getElementById('div3').style.display='block';
+}
+function closejz(){
+document.getElementById('div1').style.display='none';
+document.getElementById('div3').style.display='none';
+}
+</script>
+<script language="javascript">
+function codefans(){
+var box=document.getElementById("addiv3");
+box.style.display="none"; 
+}
+
+setTimeout("codefans()",2000);//4秒
+
+
+function target_dis(){
+var target=document.getElementById("addiv3");
+target.style.display="none";
+}
+
+
+</script>
+
+<div id="div1"></div>
+<div id="div3"> 
+  <table width="30%" bgcolor="#FFFFFF" align="center" style="border:1px solid #01A3E8">
+    <tbody><tr>
+      <td> <div align="right"> 
+          <input name="button2" type="image" style="cursor: hand;" onclick="closejz()" value="ｘ" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/jzx.png" width="30" height="28">
+        </div>
+        <table width="320px" border="0" cellpadding="3" cellspacing="1" align="center">
+          <tbody><tr> 
+            <td colspan="2" width="100%" bgcolor="#FFFFFF" height="150"> 
+              
+              <form name="form2" method="post" action="http://www.uml.org.cn/docjzh-art.asp?s=a">
+                <div align="left" style="padding-left:5%"><br>
+                  您可以捐助，支持我们的公益事业。<br>
+                  <br>
+                  <input name="jzed" type="radio" value="1" checked="">
+                  1元 
+                  <input type="radio" name="jzed" value="10">
+                  10元 
+                  <input type="radio" name="jzed" value="50">
+                  50元<br>
+                  <br>
+                  <input name="name" type="text" size="25" onblur="if(this.value==&#39;&#39;||this.value==&#39;姓名&#39;){this.value=&#39;姓名&#39;;this.style.color=&#39;#737e73&#39;;}else{this.style.color=&#39;#000000&#39;}" onfocus="if(this.value==&#39;姓名&#39;){this.value=&#39;&#39;;this.style.color=&#39;#000000&#39;;}" value="姓名" style="height: 35px; width: 250px; font-family: 微软雅黑; font-size: 16px; color: rgb(0, 0, 0);;background:#f5f5f5 !important;">
+                  <br>
+                  <br>
+                  <input name="mail" type="text" id="mail" style="height: 35px; width: 250px; font-family: 微软雅黑; font-size: 16px; color: rgb(0, 0, 0);;background:#f5f5f5; !important;box-shadow:none;" onblur="if(this.value==&#39;&#39;||this.value==&#39;邮箱&#39;){this.value=&#39;邮箱&#39;;this.style.color=&#39;#737e73&#39;;}else{this.style.color=&#39;#000000&#39;}" onfocus="if(this.value==&#39;邮箱&#39;){this.value=&#39;&#39;;this.style.color=&#39;#000000&#39;;}" value="邮箱">
+                  <br>
+                  <br>
+                  认证码：
+                  <input name="txt_check" type="text" size="10" maxlength="4" class="input" style="height:25px;">
+                  &nbsp;<img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/checkcode.asp.下载" alt="验证码,看不清楚?请点击刷新验证码" width="57" height="18" style="cursor : pointer;" onclick="this.src=&#39;checkcode.asp?t=&#39;+(new Date().getTime());"> 
+                  必填 <br>
+                  <br>
+                  <input name="Submit2" style="border-style:none; background-color: #00A3E8; font-family: &#39;微软雅黑&#39;; width: 253px; height:38px; color: #FFFFFF; font-size: 20px;" value="确定" type="submit">
+                  <br>
+                  <br>
+                </div>
+              </form></td>
+          </tr>
+        </tbody></table></td>
+    </tr>
+  </tbody></table>
+</div>
+
+
+<div id="addiv3" style="display: none;">
+<div id="addiv4"></div>
+<div id="addiv1"> 
+	<table border="0" cellpadding="0" cellspacing="0">
+<tbody><tr><td><div><a href="http://www.uml.org.cn/inc/adpf.asp" class="pxgk_a" target="_blank"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/qrs16.png" border="0"></a></div></td></tr>
+</tbody></table>
+</div>
+<div id="addiv2">
+	<table border="0" cellpadding="0" cellspacing="0">
+<tbody><tr><td><div><input type="image" value="ｘ" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/adclose.png" style="cursor: hand;border-style:none;" onclick="target_dis()"></div></td></tr>
+</tbody></table>
+</div>
+</div>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" class="content"><tbody><tr> 
+                  <td width="930">
+								<table width="100%" border="0" cellpadding="0" cellspacing="0" class="content" id="hdtopcon_a"><tbody><tr>
+								<td width="25" height="30" style="background:#f5f5f5;" class="yc">&nbsp;</td>
+								 <td width="12" height="30" align="center" class="yc"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/headh_01.gif" border="0"></td>
+                                  <td width="32" height="30" class="yc"><a href="http://www.uml.org.cn/index.asp" class="hdtop_a"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/requindex.png" border="0"></a></td>
+		                          <td width="80" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;"><a href="http://request.uml.com.cn/index.asp" class="hdtop_a">要资料</a></td>
+                                  <td width="70" height="30" align="center" class="hdtoptd_a" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;" style="background:#f5f5f5;border-left: 1px solid #000000;"><a href="http://www.uml.org.cn/wenzhang/artindex.asp" class="hdtop_a"><font color="#000">文章</font></a></td>
+								  <td width="70" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;"><a href="http://wenku.uml.com.cn/index.asp" class="hdtop_a">文库</a></td>
+								 <td width="70" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;"><a href="http://lib.uml.com.cn/index.asp" class="hdtop_a">Lib</a></td>
+ <td width="70" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;"><a href="http://video.uml.com.cn/index.asp" class="hdtop_a">视频</a></td>
+								  <td width="70" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;" class="yc"><a href="http://code.uml.com.cn/index.asp" class="hdtop_a">Code</a></td>
+								  <td width="90" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;" class="yc"><a href="http://www.uml.org.cn/iProcess/MyProcess.asp" class="hdtop_a">iProcess</a></td>
+								  <td width="70" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;"><a href="http://course.uml.org.cn/index.asp" class="hdtop_a">课程</a></td>
+								  <td width="70" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;" class="yc"><a href="http://certificate.uml.com.cn/index.asp" class="hdtop_a">认证</a></td>
+								  <td width="70" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;" class="yc"> <a href="http://consult.uml.com.cn/index.asp" class="hdtop_a">咨询</a></td>
+								  <td width="70" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;"><a href="http://tool.uml.com.cn/ToolsEA/introduce.asp" class="hdtop_a">工具</a></td>
+								 <td width="70" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;"><a href="http://www.uml.com.cn/hy/index.asp" class="hdtop_a">火云堂</a></td>
+  <td width="80" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#404040&#39;" class="yc"><a href="http://www.uml.com.cn/communicate/index.asp" class="hdtop_a">讲座吧</a></td>
+								  <td width="80" height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;" class="yc">&nbsp;</td>
+								  
+          <td align="center" width="80" height="30" bgcolor="05a7f2" style="border-left: 1px solid #000000;" onmouseover="this.bgColor=&#39;#606268&#39;;" onmouseout="this.bgColor=&#39;#05a7f2&#39;" class="yc"><a href="http://www.vleee.com/index.asp" class="hdtop_a"><font style="font-family:宋体">成长之路</font></a><a href="http://www.uml.com.cn/communicate/Expert_Recruitment.asp" class="hdtop_a"></a></td>
+                                  <td height="30" align="center" bgcolor="404040" style="border-left: 1px solid #000000;">&nbsp;</td>
+								  </tr>
+                                <!--DWLayoutTable-->
+                              </tbody></table>
+							  </td>
+							  <td>
+							   <table width="100%" border="0" cellpadding="0" cellspacing="0" class="content" bgcolor="#404040">
+							  <tbody><tr>
+							  <td height="30" align="right" class="yc"><a href="http://user.uml.com.cn/index.asp" class="hdtop_a">会员&nbsp;&nbsp;&nbsp;</a></td>
+							  </tr>
+							  </tbody></table> 
+							  </td>
+							  </tr>
+							  </tbody></table>
+							  
+<table width="100%" border="0" cellpadding="0" cellspacing="0" class="content">
+  <tbody><tr> 
+    <td width="13">&nbsp; </td>
+    <td width="1137" height="110" valign="middle" class="yc"><table width="99%" border="0" cellpadding="0" cellspacing="0" class="content">
+        <tbody><tr> 
+          <td width="1">&nbsp;</td>
+          <td width="190" height="90" valign="bottom" class="yc"><img align="left" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/arthd1.jpg" width="180" height="80"></td>
+		  <td width="20" height="90" valign="bottom">&nbsp;</td>
+          <td width="781" valign="middle"><font size="2"> 
+            <form action="http://www.uml.org.cn/wenzhang/artsearch.asp?curpage=1" method="post" style="display:inline;">
+              <table border="0" cellpadding="0" cellspacing="0" class="content">
+                <tbody><tr> 
+                  <td width="200" valign="middle" class="ss"> <input name="artname" type="text" id="id" style="height:25px;" value="" size="35"></td>
+                  <td width="100"> <input name="Submit" type="image" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/seawzh.jpg" width="80" height="24"></td>
+                  <td width="33" valign="middle" class="yc"><div align="left"><a href="http://request.uml.com.cn/index.asp?dtype=%CE%C4%D5%C2"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/reque.png" border="0"></a></div></td>
+                  <td width="176" valign="middle" class="yc"> <div align="left"><a href="http://request.uml.com.cn/index.asp?dtype=%CE%C4%D5%C2" class="contnewnew_a">要资料</a></div></td>
+                </tr>
+              </tbody></table>
+            </form>
+            </font></td>
+          <td width="157" class="yc">&nbsp; </td>
+        </tr>
+      </tbody></table></td>
+    <td width="158" valign="middle" class="yc"> <div align="right"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/erweima.jpg" width="91" height="91">&nbsp;&nbsp;</div></td>
+    <td width="120" class="yc"> <div align="left"><font id="contentday1_a" color="#c0c0c0">每天15篇文章</font></div>
+      <div align="left"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/wenzhang_dan.png" width="119" height="10"></div>
+      <div align="left"><font id="contentday1_a" color="#c0c0c0">不仅获得谋生技能</font></div>
+      <div align="left"><font id="contentday1_a" color="#c0c0c0">更可以追随信仰</font></div></td>
+    <td width="13">&nbsp;</td>
+  </tr>
+</tbody></table>
+<table width="100%" height="1" border="0" cellpadding="0" cellspacing="0" bgcolor="#f5f5f5">	   
+							  <tbody><tr> 
+							  <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+							  <tbody><tr> 
+							  <td width="19" bgcolor="#F5F5F5"></td>
+							  <td></td>
+							  <td width="19" bgcolor="#F5F5F5"></td>
+							  </tr>
+							  </tbody></table>		  
+	</td>
+	</tr>
+</tbody></table>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" class="content">
+  <tbody><tr valign="top"> 
+    <td width="900"> <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" class="content">
+        <tbody><tr valign="top"> 
+            <td width="20" background="./Netty系列之Netty线程模型-java-火龙果软件工程_files/wzhleft22012.jpg" bgcolor="F5F5F5" class="yc" id="left-l">
+            <table width="20" height="8" border="0" align="center" cellpadding="0" cellspacing="0" class="content">
+              <!--DWLayoutTable-->
+              <tbody><tr> 
+                
+      <td width="20" height="8" valign="top" class="yc">&nbsp;</td>
+              </tr>
+            </tbody></table>
+</td>
+          <td width="864" class="left"> <table width="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+              <tbody><tr> 
+                <td height="19" bgcolor="#FFFFFF"><table width="100%" border="0" align="center" cellpadding="1" cellspacing="1" class="content">
+                    <tbody><tr> 
+                      <td height="17" valign="top">&nbsp;</td>
+                      <td valign="top">&nbsp;</td>
+                      <td valign="top">&nbsp;</td>
+                    </tr>
+                    <tr> 
+                      <td width="34%" height="38" valign="top"> 
+                        &nbsp;
+
+                      </td>
+                      <td valign="top"> 
+                        &nbsp; 
+                      </td>
+                      <td width="34%" valign="top"> <div align="center"> 
+                          <style type="text/css">
+.jz_a:link {
+	color: #0000ff;
+	font-family:"微软雅黑";
+	font-size:18px;
+	text-decoration:none
+}
+
+.jz_a:visited {
+	color: #0000ff;
+	font-family:"微软雅黑";
+	font-size:18px;
+	text-decoration: none;
+	font-style: normal;
+	line-height: normal
+}
+
+.jz_a:hover {
+	color: #0000ff;
+	font-family:"微软雅黑";
+	font-size:18px;
+	text-decoration: none
+}
+share_a{
+float: left;
+font-size: 12px;
+text-decoration: none;
+line-height: 14px!important;
+}
+
+
+</style>
+<table width="300" align="center" cellspacing="0" cellpadding="0" border="0">
+  <tbody><tr> 
+    <td width="161"><div align="right"><a href="http://tool.uml.com.cn/llq/llq2.asp" target="_blank"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/cloud.png" border="none"></a> </div></td>
+	  <td width="51" valign="middle" style="padding-bottom:1px"><font style="line-height: 18px; font-family:&#39;微软雅黑&#39;; font-size:18px;"><a href="http://tool.uml.com.cn/llq/llq2.asp" class="jz_a" target="_blank">&nbsp;订阅</a></font></td>
+    <td width="37" valign="middle" style="padding-bottom:1px"> <div align="right"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/jzh.png"></div></td>
+    <td width="51" valign="middle" style="padding-bottom:1px"><font style="line-height: 18px; font-family:&#39;微软雅黑&#39;; font-size:18px;"><a href="http://www.uml.org.cn/j2ee/201408283.asp#" onclick="openjz()" class="jz_a">&nbsp; 捐助</a></font></td>
+</tr></tbody></table>
+
+                        </div></td>
+                    </tr>
+                  </tbody></table></td>
+              </tr>
+              <tr> 
+                <td bgcolor="#FFFFFF"><div align="center" class="arttitle">Netty系列之Netty线程模型</div></td>
+              </tr>
+              <tr> 
+                <td height="17" bgcolor="#FFFFFF">&nbsp;</td>
+              </tr>
+              <tr> 
+                <td height="12" bgcolor="#FFFFFF">
+<div align="center" class="artformtitle" style=" color:999999"> 作者 李林锋，火龙果软件&nbsp;&nbsp;&nbsp; 
+                    发布于&nbsp;2014-08-28</div></td>
+              </tr>
+			  <tr>
+                <td height="72" bgcolor="#FFFFFF" class="content"> 
+                  <style type="text/css">
+.wkpf,.wkpf1 {	
+    font-family: "微软雅黑";
+	font-size: 13px;
+	line-height: 30px;
+	text-decoration: none;
+	color: #818183;
+ }
+ 
+
+</style>
+
+
+<table width="100%" border="0" align="right" cellpadding="0" cellspacing="0" class="content">
+  <tbody><tr>
+    <td height="30" valign="middle" class="wkpf1">
+<div align="right"> 
+              <img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/2star.png"> <span class="wkpf">1150 次浏览 </span>
+              <span class="wkpf" valign="middle">&nbsp;&nbsp;&nbsp;&nbsp;评价：</span> <a href="http://www.uml.org.cn/inc/pf.asp?Rating=3&amp;act=show&amp;id=13338" style=" font-size:13px; font-family:微软雅黑;text-decoration: none;"><font color="#0000FF">好</font></a> 
+              <a href="http://www.uml.org.cn/inc/pf.asp?Rating=2&amp;act=show&amp;id=13338" style=" font-size:13px; font-family:微软雅黑;text-decoration: none; ;"><font color="#0000FF">中</font></a> 
+              <a href="http://www.uml.org.cn/inc/pf.asp?Rating=1&amp;act=show&amp;id=13338" style=" font-size:13px; font-family:微软雅黑;text-decoration: none; "><font color="#0000FF">差</font></a> 
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </div>
+			  
+			  
+		</td>
+</tr>
+</tbody></table></td>
+              </tr>
+              <tr> 
+                <td height="16" bgcolor="#FFFFFF">&nbsp;</td>
+              </tr>
+              <tr> 
+                <td valign="top" bgcolor="#FFFFFF"> <table width="95%" border="0" align="center" cellpadding="3" cellspacing="1">
+                    <tbody><tr> 
+                      <td height="800" valign="top" bgcolor="#FFFFFF"> <p class="artdir1">1. 
+                          背景</p>
+                        <p class="artdir3">1.1. Java线程模型的演进</p>
+                        <p class="artdir3">1.1.1. 单线程</p>
+                        <p class="artcon">时间回到十几年前，那时主流的CPU都还是单核（除了商用高性能的小机），CPU的核心频率是机器最重要的指标之一。</p>
+                        <p class="artcon">在Java领域当时比较流行的是单线程编程，对于CPU密集型的应用程序而言，频繁的通过多线程进行协作和抢占时间片反而会降低性能。</p>
+                        <p class="artdir3">1.1.2. 多线程</p>
+                        <p class="artcon">随着硬件性能的提升，CPU的核数越来越越多，很多服务器标配已经达到32或64核。通过多线程并发编程，可以充分利用多核CPU的处理能力，提升系统的处理效率和并发性能。</p>
+                        <p class="artcon">从2005年开始，随着多核处理器的逐步普及，java的多线程并发编程也逐渐流行起来，当时商用主流的JDK版本是1.4，用户可以通过 
+                          new Thread（）的方式创建新的线程。</p>
+                        <p class="artcon">由于JDK1.4并没有提供类似线程池这样的线程管理容器，多线程之间的同步、协作、创建和销毁等工作都需要用户自己实现。由于创建和销毁线程是个相对比较重量级的操作，因此，这种原始的多线程编程效率和性能都不高。</p>
+                        <p class="artdir3">1.1.3. 线程池</p>
+                        <p class="artcon">为了提升Java多线程编程的效率和性能，降低用户开发难度。JDK1.5推出了java.util.concurrent并发编程包。在并发编程类库中，提供了线程池、线程安全容器、原子类等新的类库，极大的提升了Java多线程编程的效率，降低了开发难度。</p>
+                        <p class="artcon">从JDK1.5开始，基于线程池的并发编程已经成为Java多核编程的主流。</p>
+                        <p class="artdir3">1.2. Reactor模型</p>
+                        <p class="artcon">无论是C++还是Java编写的网络框架，大多数都是基于Reactor模式进行设计和开发，Reactor模式基于事件驱动，特别适合处理海量的I/O事件。</p>
+                        <p class="artdir3">1.2.1. 单线程模型</p>
+                        <p class="artcon">Reactor单线程模型，指的是所有的IO操作都在同一个NIO线程上面完成，NIO线程的职责如下：</p>
+                        <p class="artcon">1）作为NIO服务端，接收客户端的TCP连接；</p>
+                        <p class="artcon">2）作为NIO客户端，向服务端发起TCP连接；</p>
+                        <p class="artcon">3）读取通信对端的请求或者应答消息；</p>
+                        <p class="artcon">4）向通信对端发送消息请求或者应答消息。</p>
+                        <p class="artcon">Reactor单线程模型示意图如下所示：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/2014082831.png" width="594" height="247"></p>
+                        <p align="center" class="artcon">图1-1 Reactor单线程模型</p>
+                        <p class="artcon">由于Reactor模式使用的是异步非阻塞IO，所有的IO操作都不会导致阻塞，理论上一个线程可以独立处理所有IO相关的操作。从架构层面看，一个NIO线程确实可以完成其承担的职责。例如，通过Acceptor类接收客户端的TCP连接请求消息，链路建立成功之后，通过Dispatch将对应的ByteBuffer派发到指定的Handler上进行消息解码。用户线程可以通过消息编码通过NIO线程将消息发送给客户端。</p>
+                        <p class="artcon">对于一些小容量应用场景，可以使用单线程模型。但是对于高负载、大并发的应用场景却不合适，主要原因如下：</p>
+                        <p class="artcon">1）一个NIO线程同时处理成百上千的链路，性能上无法支撑，即便NIO线程的CPU负荷达到100%，也无法满足海量消息的编码、解码、读取和发送；</p>
+                        <p class="artcon">2）当NIO线程负载过重之后，处理速度将变慢，这会导致大量客户端连接超时，超时之后往往会进行重发，这更加重了NIO线程的负载，最终会导致大量消息积压和处理超时，成为系统的性能瓶颈；</p>
+                        <p class="artcon">3）可靠性问题：一旦NIO线程意外跑飞，或者进入死循环，会导致整个系统通信模块不可用，不能接收和处理外部消息，造成节点故障。</p>
+                        <p class="artcon">为了解决这些问题，演进出了Reactor多线程模型，下面我们一起学习下Reactor多线程模型。</p>
+                        <p class="artdir3">1.2.2. 多线程模型</p>
+                        <p class="artcon">Rector多线程模型与单线程模型最大的区别就是有一组NIO线程处理IO操作，它的原理图如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/2014082832.png"></p>
+                        <p align="center" class="artcon">图1-2 Reactor多线程模型</p>
+                        <p class="artcon">Reactor多线程模型的特点：</p>
+                        <p class="artcon">1）有专门一个NIO线程-Acceptor线程用于监听服务端，接收客户端的TCP连接请求；</p>
+                        <p class="artcon">2）网络IO操作-读、写等由一个NIO线程池负责，线程池可以采用标准的JDK线程池实现，它包含一个任务队列和N个可用的线程，由这些NIO线程负责消息的读取、解码、编码和发送；</p>
+                        <p class="artcon">3）1个NIO线程可以同时处理N条链路，但是1个链路只对应1个NIO线程，防止发生并发操作问题。</p>
+                        <p class="artcon">在绝大多数场景下，Reactor多线程模型都可以满足性能需求；但是，在极个别特殊场景中，一个NIO线程负责监听和处理所有的客户端连接可能会存在性能问题。例如并发百万客户端连接，或者服务端需要对客户端握手进行安全认证，但是认证本身非常损耗性能。在这类场景下，单独一个Acceptor线程可能会存在性能不足问题，为了解决性能问题，产生了第三种Reactor线程模型-主从Reactor多线程模型。</p>
+                        <p class="artdir3">1.2.3. 主从多线程模型</p>
+                        <p class="artcon">主从Reactor线程模型的特点是：服务端用于接收客户端连接的不再是个1个单独的NIO线程，而是一个独立的NIO线程池。Acceptor接收到客户端TCP连接请求处理完成后（可能包含接入认证等），将新创建的SocketChannel注册到IO线程池（sub 
+                          reactor线程池）的某个IO线程上，由它负责SocketChannel的读写和编解码工作。Acceptor线程池仅仅只用于客户端的登陆、握手和安全认证，一旦链路建立成功，就将链路注册到后端subReactor线程池的IO线程上，由IO线程负责后续的IO操作。</p>
+                        <p class="artcon">它的线程模型如下图所示：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/2014082833.png" width="544" height="370"></p>
+                        <p align="center" class="artcon">图1-3 主从Reactor多线程模型</p>
+                        <p class="artcon">利用主从NIO线程模型，可以解决1个服务端监听线程无法有效处理所有客户端连接的性能不足问题。</p>
+                        <p class="artcon">它的工作流程总结如下：</p>
+                        <p class="artcon">从主线程池中随机选择一个Reactor线程作为Acceptor线程，用于绑定监听端口，接收客户端连接；</p>
+                        <p class="artcon">Acceptor线程接收客户端连接请求之后创建新的SocketChannel，将其注册到主线程池的其它Reactor线程上，由其负责接入认证、IP黑白名单过滤、握手等操作；</p>
+                        <p class="artcon">步骤2完成之后，业务层的链路正式建立，将SocketChannel从主线程池的Reactor线程的多路复用器上摘除，重新注册到Sub线程池的线程上，用于处理I/O的读写操作。</p>
+                        <p class="artdir1">2. Netty线程模型</p>
+                        <p class="artdir3">2.1. Netty线程模型分类</p>
+                        <p class="artcon">事实上，Netty的线程模型与1.2章节中介绍的三种Reactor线程模型相似，下面章节我们通过Netty服务端和客户端的线程处理流程图来介绍Netty的线程模型。</p>
+                        <p class="artdir3">2.1.1. 服务端线程模型</p>
+                        <p class="artcon">一种比较流行的做法是服务端监听线程和IO线程分离，类似于Reactor的多线程模型，它的工作原理图如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/2014082834.png" width="472" height="172"></p>
+                        <p align="center" class="artcon">图2-1 Netty服务端线程工作流程</p>
+                        <p class="artcon">下面我们结合Netty的源码，对服务端创建线程工作流程进行介绍：</p>
+                        <p class="artcon">第一步，从用户线程发起创建服务端操作，代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/2014082835.png" width="700" height="400"></p>
+                        <p align="center" class="artcon">图2-2 用户线程创建服务端代码示例</p>
+                        <p class="artcon">通常情况下，服务端的创建是在用户进程启动的时候进行，因此一般由Main函数或者启动类负责创建，服务端的创建由业务线程负责完成。在创建服务端的时候实例化了2个EventLoopGroup，1个EventLoopGroup实际就是一个EventLoop线程组，负责管理EventLoop的申请和释放。</p>
+                        <p class="artcon">EventLoopGroup管理的线程数可以通过构造函数设置，如果没有设置，默认取-Dio.netty.eventLoopThreads，如果该系统参数也没有指定，则为可用的CPU内核数 
+                          × 2。</p>
+                        <p class="artcon">bossGroup线程组实际就是Acceptor线程池，负责处理客户端的TCP连接请求，如果系统只有一个服务端端口需要监听，则建议bossGroup线程组线程数设置为1。</p>
+                        <p class="artcon">workerGroup是真正负责I/O读写操作的线程组，通过ServerBootstrap的group方法进行设置，用于后续的Channel绑定。</p>
+                        <p class="artcon">第二步，Acceptor线程绑定监听端口，启动NIO服务端，相关代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/2014082836.png" width="694" height="124"></p>
+                        <p align="center" class="artcon">图2-3 从bossGroup中选择一个Acceptor线程监听服务端</p>
+                        <p class="artcon">其中，group()返回的就是bossGroup，它的next方法用于从线程组中获取可用线程，代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/2014082837.png" width="700" height="104"></p>
+                        <p align="center" class="artcon">图2-4 选择Acceptor线程</p>
+                        <p class="artcon">服务端Channel创建完成之后，将其注册到多路复用器Selector上，用于接收客户端的TCP连接，核心代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/2014082838.png" width="700" height="142"></p>
+                        <p align="center" class="artcon">图2-5 注册ServerSocketChannel 
+                          到Selector</p>
+                        <p class="artcon">第三步，如果监听到客户端连接，则创建客户端SocketChannel连接，重新注册到workerGroup的IO线程上。首先看Acceptor如何处理客户端的接入：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/2014082839.png" width="700" height="184"></p>
+                        <p align="center" class="artcon">图2-6 处理读或者连接事件</p>
+                        <p class="artcon">调用unsafe的read（）方法，对于NioServerSocketChannel，它调用了NioMessageUnsafe的read()方法，代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828310.png" width="691" height="255"></p>
+                        <p align="center" class="artcon">图2-7 NioServerSocketChannel的read()方法</p>
+                        <p class="artcon">最终它会调用NioServerSocketChannel的doReadMessages方法，代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828311.png" width="700" height="140"></p>
+                        <p align="center" class="artcon">图2-8 创建客户端连接SocketChannel</p>
+                        <p class="artcon">其中childEventLoopGroup就是之前的workerGroup, 
+                          从中选择一个I/O线程负责网络消息的读写。</p>
+                        <p class="artcon">第四步，选择IO线程之后，将SocketChannel注册到多路复用器上，监听READ操作。</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828312.png" width="700" height="67"></p>
+                        <p align="center" class="artcon">图2-9 监听网络读事件</p>
+                        <p class="artcon">第五步，处理网络的I/O读写事件，核心代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828313.png" width="700" height="223"></p>
+                        <p align="center" class="artcon">图2-10 处理读写事件</p>
+                        <p class="artdir3">2.1.2. 客户端线程模型</p>
+                        <p class="artcon">相比于服务端，客户端的线程模型简单一些，它的工作原理如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828314.png" width="423" height="260"></p>
+                        <p align="center" class="artcon">图2-11 Netty客户端线程模型</p>
+                        <p class="artcon">第一步，由用户线程发起客户端连接，示例代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828315.png" width="700" height="365"></p>
+                        <p align="center" class="artcon">图2-12 Netty客户端创建代码示例</p>
+                        <p class="artcon">大家发现相比于服务端，客户端只需要创建一个EventLoopGroup，因为它不需要独立的线程去监听客户端连接，也没必要通过一个单独的客户端线程去连接服务端。Netty是异步事件驱动的NIO框架，它的连接和所有IO操作都是异步的，因此不需要创建单独的连接线程。相关代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828316.png" width="692" height="129"></p>
+                        <p align="center" class="artcon">图2-13 绑定客户端连接线程</p>
+                        <p class="artcon">当前的group（）就是之前传入的EventLoopGroup，从中获取可用的IO线程EventLoop，然后作为参数设置到新创建的NioSocketChannel中。</p>
+                        <p class="artcon">第二步，发起连接操作，判断连接结果，代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828317.png" width="700" height="336"></p>
+                        <p align="center" class="artcon">图2-14 连接操作</p>
+                        <p class="artcon">判断连接结果，如果没有连接成功，则监听连接网络操作位SelectionKey.OP_CONNECT。如果连接成功，则调用pipeline().fireChannelActive()将监听位修改为READ。</p>
+                        <p class="artcon">第三步，由NioEventLoop的多路复用器轮询连接操作结果，代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828318.png" width="700" height="189"></p>
+                        <p align="center" class="artcon">图2-15 Selector发起轮询操作</p>
+                        <p class="artcon">判断连接结果，如果或连接成功，重新设置监听位为READ：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828319.png" width="700" height="239"></p>
+                        <p align="center" class="artcon">图2-16 判断连接操作结果</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828320.png" width="694" height="359"></p>
+                        <p align="center" class="artcon">图2-17 设置操作位为READ</p>
+                        <p class="artcon">第四步，由NioEventLoop线程负责I/O读写，同服务端。</p>
+                        <p class="artcon">总结：客户端创建，线程模型如下：</p>
+                        <p class="artcon">由用户线程负责初始化客户端资源，发起连接操作；</p>
+                        <p class="artcon">如果连接成功，将SocketChannel注册到IO线程组的NioEventLoop线程中，监听读操作位；</p>
+                        <p class="artcon">如果没有立即连接成功，将SocketChannel注册到IO线程组的NioEventLoop线程中，监听连接操作位；</p>
+                        <p class="artcon">连接成功之后，修改监听位为READ，但是不需要切换线程。</p>
+                        <p class="artdir3">2.2. Reactor线程NioEventLoop</p>
+                        <p class="artdir3">2.2.1. NioEventLoop介绍</p>
+                        <p class="artcon">NioEventLoop是Netty的Reactor线程，它的职责如下：</p>
+                        <p class="artcon">作为服务端Acceptor线程，负责处理客户端的请求接入；</p>
+                        <p class="artcon">作为客户端Connecor线程，负责注册监听连接操作位，用于判断异步连接结果；</p>
+                        <p class="artcon">作为IO线程，监听网络读操作位，负责从SocketChannel中读取报文；</p>
+                        <p class="artcon">作为IO线程，负责向SocketChannel写入报文发送给对方，如果发生写半包，会自动注册监听写事件，用于后续继续发送半包数据，直到数据全部发送完成；</p>
+                        <p class="artcon">作为定时任务线程，可以执行定时任务，例如链路空闲检测和发送心跳消息等；</p>
+                        <p class="artcon">作为线程执行器可以执行普通的任务线程（Runnable）。</p>
+                        <p class="artcon">在服务端和客户端线程模型章节我们已经详细介绍了NioEventLoop如何处理网络IO事件，下面我们简单看下它是如何处理定时任务和执行普通的Runnable的。</p>
+                        <p class="artcon">首先NioEventLoop继承SingleThreadEventExecutor，这就意味着它实际上是一个线程个数为1的线程池，类继承关系如下所示：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828321.png" width="447" height="161"></p>
+                        <p align="center" class="artcon">图2-18 NioEventLoop继承关系</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828322.png" width="610" height="120"></p>
+                        <p align="center" class="artcon">图2-19 线程池和任务队列定义</p>
+                        <p class="artcon">对于用户而言，直接调用NioEventLoop的execute(Runnable 
+                          task)方法即可执行自定义的Task，代码实现如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828323.png" width="578" height="456"></p>
+                        <p align="center" class="artcon">图2-20 执行用户自定义Task</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828324.png" width="492" height="262"></p>
+                        <p align="center" class="artcon">图2-21 NioEventLoop实现ScheduledExecutorService</p>
+                        <p class="artcon">通过调用SingleThreadEventExecutor的schedule系列方法，可以在NioEventLoop中执行Netty或者用户自定义的定时任务，接口定义如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828325.png" width="547" height="134"></p>
+                        <p align="center" class="artcon">图2-22 NioEventLoop的定时任务执行接口定义</p>
+                        <p class="artdir3">2.3. NioEventLoop设计原理</p>
+                        <p class="artdir3">2.3.1. 串行化设计避免线程竞争</p>
+                        <p class="artcon">我们知道当系统在运行过程中，如果频繁的进行线程上下文切换，会带来额外的性能损耗。多线程并发执行某个业务流程，业务开发者还需要时刻对线程安全保持警惕，哪些数据可能会被并发修改，如何保护？这不仅降低了开发效率，也会带来额外的性能损耗。</p>
+                        <p class="artcon">串行执行Handler链</p>
+                        <p class="artcon">为了解决上述问题，Netty采用了串行化设计理念，从消息的读取、编码以及后续Handler的执行，始终都由IO线程NioEventLoop负责，这就意外着整个流程不会进行线程上下文的切换，数据也不会面临被并发修改的风险，对于用户而言，甚至不需要了解Netty的线程细节，这确实是个非常好的设计理念，它的工作原理图如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828326.png" width="407" height="174"></p>
+                        <p align="center" class="artcon">图2-23 NioEventLoop串行执行ChannelHandler</p>
+                        <p class="artcon">一个NioEventLoop聚合了一个多路复用器Selector，因此可以处理成百上千的客户端连接，Netty的处理策略是每当有一个新的客户端接入，则从NioEventLoop线程组中顺序获取一个可用的NioEventLoop，当到达数组上限之后，重新返回到0，通过这种方式，可以基本保证各个NioEventLoop的负载均衡。一个客户端连接只注册到一个NioEventLoop上，这样就避免了多个IO线程去并发操作它。</p>
+                        <p class="artcon">Netty通过串行化设计理念降低了用户的开发难度，提升了处理性能。利用线程组实现了多个串行化线程水平并行执行，线程之间并没有交集，这样既可以充分利用多核提升并行处理能力，同时避免了线程上下文的切换和并发保护带来的额外性能损耗。</p>
+                        <p class="artdir3">2.3.2. 定时任务与时间轮算法</p>
+                        <p class="artcon">在Netty中，有很多功能依赖定时任务，比较典型的有两种：</p>
+                        <p class="artcon">客户端连接超时控制；</p>
+                        <p class="artcon">链路空闲检测。</p>
+                        <p class="artcon">一种比较常用的设计理念是在NioEventLoop中聚合JDK的定时任务线程池ScheduledExecutorService，通过它来执行定时任务。这样做单纯从性能角度看不是最优，原因有如下三点：</p>
+                        <p class="artcon">在IO线程中聚合了一个独立的定时任务线程池，这样在处理过程中会存在线程上下文切换问题，这就打破了Netty的串行化设计理念；</p>
+                        <p class="artcon">存在多线程并发操作问题，因为定时任务Task和IO线程NioEventLoop可能同时访问并修改同一份数据；</p>
+                        <p class="artcon">JDK的ScheduledExecutorService从性能角度看，存在性能优化空间。</p>
+                        <p class="artcon">最早面临上述问题的是操作系统和协议栈，例如TCP协议栈，其可靠传输依赖超时重传机制，因此每个通过TCP传输的 
+                          packet 都需要一个 timer来调度 timeout 事件。这类超时可能是海量的，如果为每个超时都创建一个定时器，从性能和资源消耗角度看都是不合理的。</p>
+                        <p class="artcon">根据George Varghese和Tony Lauck 1996年的论文《Hashed 
+                          and Hierarchical Timing Wheels: data structures to efficiently 
+                          implement a timer facility》提出了一种定时轮的方式来管理和维护大量的timer调度。Netty的定时任务调度就是基于时间轮算法调度，下面我们一起来看下Netty的实现。</p>
+                        <p class="artcon">定时轮是一种数据结构，其主体是一个循环列表，每个列表中包含一个称之为slot的结构，它的原理图如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828327.png" width="391" height="252"></p>
+                        <p align="center" class="artcon">图2-24 时间轮工作原理</p>
+                        <p class="artcon">定时轮的工作原理可以类比于时钟，如上图箭头（指针）按某一个方向按固定频率轮动，每一次跳动称为一个tick。这样可以看出定时轮由个3个重要的属性参数：ticksPerWheel（一轮的tick数），tickDuration（一个tick的持续时间）以及 
+                          timeUnit（时间单位），例如当ticksPerWheel=60，tickDuration=1，timeUnit=秒，这就和时钟的秒针走动完全类似了。</p>
+                        <p class="artcon">下面我们具体分析下Netty的实现：时间轮的执行由NioEventLoop来复杂检测，首先看任务队列中是否有超时的定时任务和普通任务，如果有则按照比例循环执行这些任务，代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828328.png" width="602" height="157"></p>
+                        <p align="center" class="artcon">图2-25 执行任务队列</p>
+                        <p class="artcon">如果没有需要理解执行的任务，则调用Selector的select方法进行等待，等待的时间为定时任务队列中第一个超时的定时任务时延，代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828329.png" width="700" height="263"></p>
+                        <p align="center" class="artcon">图2-26 计算时延</p>
+                        <p class="artcon">从定时任务Task队列中弹出delay最小的Task，计算超时时间，代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828330.png" width="700" height="185"></p>
+                        <p align="center" class="artcon">图2-27 从定时任务队列中获取超时时间</p>
+                        <p class="artcon">定时任务的执行：经过周期tick之后，扫描定时任务列表，将超时的定时任务移除到普通任务队列中，等待执行，相关代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828331.png" width="700" height="394"></p>
+                        <p align="center" class="artcon">图2-28 检测超时的定时任务</p>
+                        <p class="artcon">检测和拷贝任务完成之后，就执行超时的定时任务，代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828332.png" width="700" height="338"></p>
+                        <p align="center" class="artcon">图2-29 执行定时任务</p>
+                        <p class="artcon">为了保证定时任务的执行不会因为过度挤占IO事件的处理，Netty提供了IO执行比例供用户设置，用户可以设置分配给IO的执行比例，防止因为海量定时任务的执行导致IO处理超时或者积压。</p>
+                        <p class="artcon">因为获取系统的纳秒时间是件耗时的操作，所以Netty每执行64个定时任务检测一次是否达到执行的上限时间，达到则退出。如果没有执行完，放到下次Selector轮询时再处理，给IO事件的处理提供机会，代码如下：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828333.png" width="697" height="277"></p>
+                        <p align="center" class="artcon">图2-30 执行时间上限检测</p>
+                        <p class="artdir3">2.3.3. 聚焦而不是膨胀</p>
+                        <p class="artcon">Netty是个异步高性能的NIO框架，它并不是个业务运行容器，因此它不需要也不应该提供业务容器和业务线程。合理的设计模式是Netty只负责提供和管理NIO线程，其它的业务层线程模型由用户自己集成，Netty不应该提供此类功能，只要将分层划分清楚，就会更有利于用户集成和扩展。</p>
+                        <p class="artcon">令人遗憾的是在Netty 3系列版本中，Netty提供了类似Mina异步Filter的ExecutionHandler，它聚合了JDK的线程池java.util.concurrent.Executor，用户异步执行后续的Handler。</p>
+                        <p class="artcon">ExecutionHandler是为了解决部分用户Handler可能存在执行时间不确定而导致IO线程被意外阻塞或者挂住，从需求合理性角度分析这类需求本身是合理的，但是Netty提供该功能却并不合适。原因总结如下：</p>
+                        <p class="artcon">1. 它打破了Netty坚持的串行化设计理念，在消息的接收和处理过程中发生了线程切换并引入新的线程池，打破了自身架构坚守的设计原则，实际是一种架构妥协；</p>
+                        <p class="artcon">2. 潜在的线程并发安全问题，如果异步Handler也操作它前面的用户Handler，而用户Handler又没有进行线程安全保护，这就会导致隐蔽和致命的线程安全问题；</p>
+                        <p class="artcon">3. 用户开发的复杂性，引入ExecutionHandler，打破了原来的ChannelPipeline串行执行模式，用户需要理解Netty底层的实现细节，关心线程安全等问题，这会导致得不偿失。</p>
+                        <p class="artcon">鉴于上述原因，Netty的后续版本彻底删除了ExecutionHandler，而且也没有提供类似的相关功能类，把精力聚焦在Netty的IO线程NioEventLoop上，这无疑是一种巨大的进步，Netty重新开始聚焦在IO线程本身，而不是提供用户相关的业务线程模型。</p>
+                        <p class="artdir1">2.4. Netty线程开发最佳实践</p>
+                        <p class="artdir3">2.4.1. 时间可控的简单业务直接在IO线程上处理</p>
+                        <p class="artcon">如果业务非常简单，执行时间非常短，不需要与外部网元交互、访问数据库和磁盘，不需要等待其它资源，则建议直接在业务ChannelHandler中执行，不需要再启业务的线程或者线程池。避免线程上下文切换，也不存在线程并发问题。</p>
+                        <p class="artdir3">2.4.2. 复杂和时间不可控业务建议投递到后端业务线程池统一处理</p>
+                        <p class="artcon">对于此类业务，不建议直接在业务ChannelHandler中启动线程或者线程池处理，建议将不同的业务统一封装成Task，统一投递到后端的业务线程池中进行处理。</p>
+                        <p class="artcon">过多的业务ChannelHandler会带来开发效率和可维护性问题，不要把Netty当作业务容器，对于大多数复杂的业务产品，仍然需要集成或者开发自己的业务容器，做好和Netty的架构分层。</p>
+                        <p class="artdir3">2.4.3. 业务线程避免直接操作ChannelHandler</p>
+                        <p class="artcon">对于ChannelHandler，IO线程和业务线程都可能会操作，因为业务通常是多线程模型，这样就会存在多线程操作ChannelHandler。为了尽量避免多线程并发问题，建议按照Netty自身的做法，通过将操作封装成独立的Task由NioEventLoop统一执行，而不是业务线程直接操作，相关代码如下所示：</p>
+                        <p align="center" class="artcon"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20140828334.png" width="700" height="324"></p>
+                        <p align="center" class="artcon">图2-31 封装成Task防止多线程并发操作</p>
+                        <p class="artcon">如果你确认并发访问的数据或者并发操作是安全的，则无需多此一举，这个需要根据具体的业务场景进行判断，灵活处理。</p>
+                        <p class="artdir1">3. 总结</p>
+                        <p class="artcon">尽管Netty的线程模型并不复杂，但是如何合理利用Netty开发出高性能、高并发的业务产品，仍然是个有挑战的工作。只有充分理解了Netty的线程模型和设计原理，才能开发出高质量的产品。</p></td>
+                    </tr>
+                  </tbody></table>
+                  <table width="100%" border="0" align="center" cellpadding="1" cellspacing="1" class="content">
+                    <tbody><tr> 
+                      <td width="34%" height="17" valign="top"> 
+                        &nbsp;
+                      </td>
+                      <td valign="top"> 
+                        &nbsp; 
+                      </td>
+                      <td width="34%" valign="top"> <div align="center"> 
+                          <style type="text/css">
+.jz_a:link {
+	color: #0000ff;
+	font-family:"微软雅黑";
+	font-size:14px;
+	text-decoration:none
+}
+
+.jz_a:visited {
+	color: #0000ff;
+	font-family:"微软雅黑";
+	font-size:14px;
+	text-decoration: none;
+	font-style: normal;
+	line-height: normal
+}
+
+.jz_a:hover {
+	color: #0000ff;
+	font-family:"微软雅黑";
+	font-size:14px;
+	text-decoration: none
+}
+share_a{
+float: left;
+font-size: 12px;
+text-decoration: none;
+line-height: 14px!important;
+}
+
+
+</style>
+<table width="300" align="center" cellspacing="0" cellpadding="0" border="0">
+  <tbody><tr> 
+    <td width="161"><div align="right"><a href="http://tool.uml.com.cn/llq/llq2.asp" target="_blank"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/cloud.png" border="none"></a> 
+      </div></td>
+    <td width="51" valign="middle" style="padding-bottom:1px"><font style="line-height: 18px; font-family:&#39;微软雅黑&#39;; font-size:18px;"><a href="http://tool.uml.com.cn/llq/llq2.asp" class="jz_a" target="_blank">&nbsp;订阅</a></font></td>
+    <td width="37" valign="middle" style="padding-bottom:1px"> <div align="right"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/jzh.png"></div></td>
+    <td width="51" valign="middle" style="padding-bottom:1px"><font style="line-height: 18px; font-family:&#39;微软雅黑&#39;; font-size:18px;"><a href="http://www.uml.org.cn/j2ee/201408283.asp#" onclick="openjz()" class="jz_a">&nbsp; 
+      捐助</a></font></td>
+</tr></tbody></table>
+<!-- JiaThis Button BEGIN -->
+<script type="text/javascript" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/jia.js.下载" charset="utf-8"></script><script type="text/javascript" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/plugin.client.js.下载" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+<!-- Baidu Button BEGIN -->
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=6586105" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/bds_s_v2.js.下载"></script>
+
+<script type="text/javascript">
+document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + Math.ceil(new Date()/3600000);
+</script>
+<!-- Baidu Button END -->
+                        </div></td>
+                    </tr>
+                  </tbody></table> 
+                  
+<style type="text/css">
+@media (max-width: 768px) {
+  .wd{
+    display: none !important; 
+  } 
+  
+  
+  
+  }
+}
+.lettit
+{      color:#000000;
+        font-family:"微软雅黑";
+        font-size:13px; 
+		
+}
+</style>
+<table width="95%" border="0" align="center" cellpadding="1" cellspacing="1">
+  
+  
+ 
+  <tbody><tr> 
+    <td width="34%" height="129" valign="top"> <table width="100%">
+        <tbody><tr>
+          <td width="34%" height="30" class="lettit"></td>
+        </tr>
+        <tr>
+          <td width="34%" height="30" class="lettit">相关文章</td>
+        </tr>
+        <tr>
+          <td> <hr width="80%" size="1" color="#999999" align="left"></td>
+        </tr>
+        <tr> 
+          <td height="25"><a class="artrighttext_a" href="http://www.uml.org.cn/codeNorms/201307081.asp">深度解析：清理烂代码</a></td>
+        </tr>
+        <tr> 
+          <td height="25"><a class="artrighttext_a" href="http://www.uml.org.cn/codeNorms/201303182.asp">如何编写出拥抱变化的代码</a></td>
+        </tr>
+        <tr> 
+          <td height="25"><a class="artrighttext_a" href="http://www.uml.org.cn/sjms/201106023.asp">重构-使代码更简洁优美</a></td>
+        </tr>
+        <tr> 
+          <td height="25"><a class="artrighttext_a" href="http://www.uml.org.cn/xmgl/200910211.asp">团队项目开发"编码规范"系列文章</a></td>
+        </tr>
+      </tbody></table></td>
+    <td height="129" valign="top" class="wd"> <table width="100%">
+        <tbody><tr>
+          <td width="34%" height="30" class="lettit"></td>
+        </tr>
+        <tr> 
+          <td width="34%" height="30" class="lettit">相关文档</td>
+        </tr>
+        <tr>
+          <td> <hr width="80%" size="1" color="#999999" align="left"></td>
+        </tr>
+        <tr> 
+          <td height="25"><a class="artrighttext_a" href="http://wenku.uml.com.cn/document.asp?fileid=4646&amp;partname=%B1%E0%C2%EB%A1%A2%B9%B9%BD%A8%D3%EB%BC%AF%B3%C9">重构-改善既有代码的设计</a></td>
+        </tr>
+        <tr> 
+          <td height="25"> <a class="artrighttext_a" href="http://wenku.uml.com.cn/document.asp?fileid=2527&amp;partname=%B1%E0%C2%EB%A1%A2%B9%B9%BD%A8%D3%EB%BC%AF%B3%C9">软件重构v2</a></td>
+        </tr>
+        <tr> 
+          <td height="25"><a class="artrighttext_a" href="http://wenku.uml.com.cn/document.asp?fileid=4621&amp;partname=%B1%E0%C2%EB%A1%A2%B9%B9%BD%A8%D3%EB%BC%AF%B3%C9">代码整洁之道</a></td>
+        </tr>
+        <tr> 
+          <td height="25"><a class="artrighttext_a" href="http://wenku.uml.com.cn/document.asp?fileid=4580&amp;partname=%B1%E0%C2%EB%A1%A2%B9%B9%BD%A8%D3%EB%BC%AF%B3%C9">高质量编程规范</a></td>
+        </tr>
+      </tbody></table></td>
+    <td width="34%" height="129" valign="top" class="wd"> <table width="100%">
+        <tbody><tr>
+          <td width="34%" height="30" class="lettit"></td>
+        </tr>
+        <tr> 
+          <td width="34%" height="30" class="lettit">相关课程</td>
+        </tr>
+        <tr>
+          <td> <hr width="80%" size="1" color="#999999" align="left"></td>
+        </tr>
+        <tr> 
+          <td height="25"><a class="artrighttext_a" href="http://www.uml.org.cn/course-web/HTML5.asp">基于HTML5客户端、Web端的应用开发</a></td>
+        </tr>
+        <tr> 
+          <td height="25"><a class="artrighttext_a" href="http://www.uml.org.cn/course-java/HTMLCSS.asp">HTML 
+            5+CSS 开发</a></td>
+        </tr>
+        <tr> 
+          <td height="25"><a class="artrighttext_a" href="http://www.uml.org.cn/course-c%2B%2B/emdc.asp">嵌入式C高质量编程</a></td>
+        </tr>
+        <tr> 
+          <td height="25"><a class="artrighttext_a" href="http://www.uml.org.cn/course-pm/functEsti.asp">C++高级编程</a></td>
+        </tr>
+      </tbody></table></td>
+  </tr>
+</tbody></table>
+
+                </td>
+              </tr>
+            </tbody></table></td>
+        </tr>
+      </tbody></table></td>
+    <td> <table width="240" border="0" align="right" cellpadding="0" cellspacing="0" bgcolor="#FFFFFF" class="content">
+        <tbody><tr> 
+          <td height="20" valign="top" class="left_right"> <table width="200" height="8" border="0" align="center" cellpadding="1" cellspacing="1" bgcolor="#FFFFFF" class="content" id="__01">
+              <!--DWLayoutTable-->
+                    <tbody><tr> 
+                      <td height="17" valign="top"><div align="left">
+                          &nbsp;
+                        </div>
+                      </td>
+                    </tr>
+			 <tr> 
+                <td width="200" valign="top" bgcolor="#FFFFFF"><table width="100%" border="0" align="center" cellpadding="1" cellspacing="0" class="content">
+                    <tbody><tr> 
+                      <td height="17" valign="top"><div align="left"><font color="000080"><a href="http://www.uml.org.cn/j2ee/j2ee.asp" target="_blank"><font color="000080"><b><u>相关文章</u></b></font></a></font> 
+                        </div>
+                        <hr width="100%" size="1"> </td>
+                    </tr>
+                    <tr> 
+                      <td valign="top"> 
+                        <style>
+.artrighttext
+{      
+	color: #0000FF;
+        font-family:"微软雅黑";
+        font-size:13px;
+		 line-height: 12px;
+		 text-decoration:underline
+		
+}
+.artrighttext_a:link
+{	color: #0000FF;
+	font-family:"微软雅黑";
+	font-size:13px;
+	text-decoration:underline
+}
+.artrighttext_a:visited
+{       color:#0000FF;
+        font-family:"微软雅黑";
+        font-size:13px;
+       text-decoration:underline
+} 
+.artrighttext_a:hover
+{       color:#0000FF;
+        font-family:"微软雅黑";
+        font-size:13px;
+        text-decoration:underline
+} 
+
+</style>
+<link href="./Netty系列之Netty线程模型-java-火龙果软件工程_files/style1.css" rel="stylesheet" type="text/css">
+<table width="300" border="0" align="center" cellpadding="0" cellspacing="0" class="content">
+  <tbody><tr> 
+    <td height="18"><a href="http://www.uml.org.cn/j2ee/201107271.asp" target="_blank" class="artrighttext_a">Java 
+      中的中文编码问题</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://www.uml.org.cn/j2ee/201105043.asp" target="_blank" class="artrighttext_a">Java基础知识的三十个经典问答</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://www.uml.org.cn/j2ee/201107064.asp" target="_blank" class="artrighttext_a">玩转 
+      Java Web 应用开发</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://www.uml.org.cn/j2ee/201106284.asp" target="_blank" class="artrighttext_a">使用Spring更好地处理Struts</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://www.uml.org.cn/j2ee/201107063.asp" target="_blank" class="artrighttext_a">用Eclipse开发iPhone 
+      Web应用</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://www.uml.org.cn/j2ee/20114121.asp" target="_blank" class="artrighttext_a"> 
+      插件系统框架分析 </a></td>
+  </tr>
+  <tr> 
+    <td height="18"><div align="right"><a href="http://www.uml.org.cn/j2ee/j2ee.asp" target="_blank" class="artrighttext_a">更多...</a>&nbsp;&nbsp;&nbsp;</div></td>
+  </tr>
+</tbody></table>
+
+                      </td>
+                    </tr>
+                  </tbody></table></td>
+              </tr>
+            </tbody></table>
+            <br> <table width="100%" border="0" align="center" cellpadding="1" cellspacing="1" class="content">
+              <tbody><tr> 
+                <td height="17" valign="top"><div align="left"><font color="000080"><a href="http://www.uml.org.cn/course/java.asp" target="_blank"><font color="000080"><b><u>相关培训课程</u></b></font></a></font></div>
+                  <hr width="100%" size="1"> </td>
+              </tr>
+              <tr> 
+                <td valign="top"> 
+                  <style>
+.artrighttext
+{      
+	color: #0000FF;
+        font-family:"微软雅黑";
+        font-size:13px;
+		 line-height: 12px;
+		 text-decoration:underline
+		
+}
+.artrighttext_a:link
+{	color: #0000FF;
+	font-family:"微软雅黑";
+	font-size:13px;
+	text-decoration:underline
+}
+.artrighttext_a:visited
+{       color:#0000FF;
+        font-family:"微软雅黑";
+        font-size:13px;
+       text-decoration:underline
+} 
+.artrighttext_a:hover
+{       color:#0000FF;
+        font-family:"微软雅黑";
+        font-size:13px;
+        text-decoration:underline
+} 
+
+</style>
+<link href="./Netty系列之Netty线程模型-java-火龙果软件工程_files/style1.css" rel="stylesheet" type="text/css">
+<table width="300" border="0" align="center" cellpadding="0" cellspacing="0" class="content">
+  <tbody><tr> 
+    <td height="18"><a href="http://course.uml.org.cn/course-java/Javasshejb.asp" target="_blank" class="artrighttext_a">Struts+Spring+Hibernate</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://course.uml.org.cn/course-java/J2eeWeb2.asp" target="_blank" class="artrighttext_a">基于J2EE的Web 
+      2.0应用开发</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://course.uml.org.cn/course-java/J2eesjmshity.asp" target="_blank" class="artrighttext_a">J2EE设计模式和性能调优</a> 
+    </td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://course.uml.org.cn/course-java/Javaee5.asp" target="_blank" class="artrighttext_a">Java 
+      EE 5企业级架构设计</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://course.uml.org.cn/course-java/netjceshi.asp" target="_blank" class="artrighttext_a">Java单元测试方法与技术</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://course.uml.org.cn/course-java/Javabc.asp" target="_blank" class="artrighttext_a">Java编程方法与技术</a></td>
+  </tr>
+  <tr> 
+    <td> <div align="right"> <div align="right"><a href="http://course.uml.org.cn/course/java.asp" target="_blank" class="artrighttext_a">更多课程...</a>&nbsp;&nbsp;&nbsp;</div></div></td>
+  </tr>
+</tbody></table>
+
+                </td>
+              </tr>
+            </tbody></table>
+            <br> <table width="100%" border="0" align="center" cellpadding="1" cellspacing="1" class="content">
+              <tbody><tr> 
+                <td height="17" valign="top"><div align="left"><a href="http://www.uml.org.cn/newumltrain/pxanli.asp" target="_blank"><font color="000080"><b><u>成功案例</u></b></font> 
+                    </a></div>
+                  
+                </td>
+              </tr>
+              <tr> 
+                <td valign="top"> <hr width="100%" size="1">
+                  <style>
+.artrighttext
+{      
+	color: #0000FF;
+        font-family:"微软雅黑";
+        font-size:13px;
+		 line-height: 12px;
+		 text-decoration:underline
+		
+}
+.artrighttext_a:link
+{	color: #0000FF;
+	font-family:"微软雅黑";
+	font-size:13px;
+	text-decoration:underline
+}
+.artrighttext_a:visited
+{       color:#0000FF;
+        font-family:"微软雅黑";
+        font-size:13px;
+       text-decoration:underline
+} 
+.artrighttext_a:hover
+{       color:#0000FF;
+        font-family:"微软雅黑";
+        font-size:13px;
+        text-decoration:underline
+} 
+
+</style>
+<style>
+
+.contnew
+{      color:#000000;
+        font-family:"微软雅黑";
+        font-size:13px; 
+		
+}
+.contnew_a:link
+{	color: #000000;
+	font-family:"微软雅黑";
+	font-size:13px;
+	
+}
+.contnew_a:visited
+{       color:#000000;
+        font-family:"微软雅黑";
+        font-size:13px;
+		
+} 
+.contnew_a:hover
+{
+	color:#000000;
+	font-family:"微软雅黑";
+	font-size:13px;
+	
+} 
+
+</style> 
+<table width="300" border="0" align="center" cellpadding="0" cellspacing="0" class="content">
+  <tbody><tr> 
+    <td height="18"><a href="http://www.uml.org.cn/news/20150625j2ee.asp" target="_blank" class="artrighttext_a">Struts+Spring+Hibernate/EJB+性能优化</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://www.uml.org.cn/news/20140929-MQ.asp" target="_blank" class="artrighttext_a">华夏基金 
+      ActiveMQ 原理与管理</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://www.uml.org.cn/news/20140305java.asp" target="_blank" class="artrighttext_a">某民航公司 
+      Java基础编程到应用开发</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://www.uml.org.cn/news/20131212Java.asp" target="_blank" class="artrighttext_a">某风电公司 
+      Java 应用开发平台与迁移</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://www.uml.org.cn/news/20120406j2ee.asp" target="_blank" class="artrighttext_a">日照港 
+      J2EE应用开发技术框架与实践</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://www.uml.org.cn/news/913JBPMtraining.asp" target="_blank" class="artrighttext_a">某跨国公司 
+      工作流管理JBPM</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><a href="http://www.uml.org.cn/news/827J2EEtraining.asp" target="_blank" class="artrighttext_a">东方航空公司 
+      高级J2EE及其前沿技术</a></td>
+  </tr>
+  <tr> 
+    <td height="18"><div align="right"><a href="http://www.uml.org.cn/MyProcess/GuideView/kchanli.asp#9" target="_blank" class="artrighttext_a">更多...</a>&nbsp;&nbsp;&nbsp;</div></td>
+  </tr>
+  <tr> 
+    <td height="10">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td height="10"><script language="javascript" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/idea.js.下载"></script><table width="100%" border="0" align="center" valign="middle" cellpadding="0" cellspacing="0" class="content">
+<tbody><tr><td width="7%" height="20"></td></tr>
+<tr><td><table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tbody><tr><td width="6%" rowspan="4"><a href="http://www.uml.com.cn/communicate/2017-12-2.asp" target="_blank"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/20171028dwz.jpg" width="100" border="0"></a></td><td width="94%" height="30"><a href="http://www.uml.com.cn/communicate/2017-12-2.asp" target="_blank" class="contnew_a"><font color="880015">&nbsp;讲座 </font> MySQL架构设计</a></td></tr>
+<tr><td height="30"><a href="http://www.uml.com.cn/communicate/2017-12-2.asp" target="_blank" class="contnew_a">&nbsp;讲师: 杜伟忠</a></td></tr>
+<tr><td height="30"><a href="http://www.uml.com.cn/communicate/2017-12-2.asp" target="_blank" class="contnew_a">&nbsp;时间： 2017-12-16</a></td></tr>
+<tr><td>&nbsp;</td></tr>
+</tbody></table></td></tr>
+<tr><td height="20">&nbsp;</td></tr>
+</tbody></table></td></tr>
+<tr><td height="25" colspan="2" valign="bottom"><a href="http://video.uml.com.cn/video/broh5.asp?vidID=2864" target="_blank" class="contnew_a"><font color="880015" style="font-size:15px;font-weight:bold">&nbsp;实录 </font>&nbsp;C语言面向对象</a></td></tr>
+<tr><td height="25" colspan="2" valign="bottom"><a href="http://video.uml.com.cn/video/broh5.asp?vidID=2864" target="_blank" class="contnew_a">&nbsp;主讲：宋宝华 </a></td></tr>
+<tr><td height="25" colspan="2" valign="bottom"><a href="http://video.uml.com.cn/video/broh5.asp?vidID=2864" target="_blank" class="contnew_a">《Linux设备驱动开发详解》的作者</a></td></tr>
+<tr><td height="30">&nbsp;</td></tr>
+<tr><td height="25" colspan="2" valign="bottom"><a href="http://video.uml.com.cn/video/broh5.asp?vidID=2846" target="_blank" class="contnew_a"><font color="880015" style="font-size:15px;font-weight:bold">&nbsp;实录 </font>&nbsp;基于Tensorflow进行深度学习 </a></td></tr>
+<tr><td height="25" colspan="2" valign="bottom"><a href="http://video.uml.com.cn/video/broh5.asp?vidID=2846" target="_blank" class="contnew_a">&nbsp;主讲：钱兴会 </a></td></tr>
+<tr><td height="25" colspan="2" valign="bottom"><a href="http://video.uml.com.cn/video/broh5.asp?vidID=2846" target="_blank" class="contnew_a">曾任联想集团大数据平台架构师</a></td></tr>
+</tbody></table>
+</td>
+  </tr>
+  <tr> 
+    <td height="10">&nbsp;</td>
+  </tr>
+  <tr> 
+    <td height="18"><script language="javascript" src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/kc.js.下载"></script><table width="100%" border="0" cellpadding="0" cellspacing="0">
+<tbody><tr valign="top"><td height="25"><a href="http://course.uml.org.cn/xch/AgileProcess.asp" target="_blank" class="pxgk_a">[北京] 敏捷开发过程及最佳实践 12-5</a>  </td></tr>
+<tr valign="top"><td height="25"><a href="http://course.uml.org.cn/course-emb/qrscs.asp" target="_blank" class="pxgk_a">[北京] 嵌入式软件测试   11-16</a>  </td></tr>
+<tr valign="top"><td height="25"><a href="http://course.uml.org.cn/course-ai/rgzn.asp" target="_blank" class="pxgk_a">[北京] 人工智能机器和深度学习  11-20</a>  </td></tr>
+<tr valign="top"><td height="25"><a href="http://course.uml.org.cn/course-scm/gitscm.asp" target="_blank" class="pxgk_a">[北京]  Git版本控制与配置管理   11-21</a>  </td></tr>
+<tr valign="top"><td height="25"><a href="http://course.uml.org.cn/course-uml/uml-EA.asp" target="_blank" class="pxgk_a">[北京]  UML和EA进行系统分析设计   11-23</a>  </td></tr>
+<tr valign="top"><td height="25"><a href="http://course.uml.org.cn/course-itil/DevOpstixis.asp" target="_blank" class="pxgk_a">[北京]  DevOps体系实践、工具与平台   11-27</a>  </td></tr>
+<tr valign="top"><td height="25"><a href="http://course.uml.org.cn/course-emb/embzjjs.asp" target="_blank" class="pxgk_a">[上海]  嵌入式架构设计高级实践  11-23</a>  </td></tr>
+<tr valign="top"><td height="25"><a href="http://course.uml.org.cn/course-arch/rjjgqyj.asp" target="_blank" class="pxgk_a">[上海]   软件架构设计方法案例实践 11-16</a></td></tr>
+<tr valign="top"><td height="25"><a href="http://course.uml.org.cn/course-c%2B%2B/emdc.asp" target="_blank" class="pxgk_a">[上海]   嵌入式C高质量编程 11-21</a></td></tr>
+<tr valign="top"><td height="25"><a href="http://course.uml.org.cn/course-req/reqth.asp" target="_blank" class="pxgk_a">[深圳]     需求分析与管理  11-23</a>  </td></tr>
+</tbody></table>
+</td>
+  </tr>
+  <tr> 
+    <td height="18">&nbsp;</td>
+  </tr>
+</tbody></table>
+
+                </td>
+              </tr>
+            </tbody></table></td>
+          <td width="40">&nbsp;</td>
+        </tr>
+      </tbody></table>
+    
+      <table width="20" height="8" border="0" align="center" cellpadding="0" cellspacing="0" class="content">
+        <!--DWLayoutTable-->
+        <tbody><tr> 
+          
+      <td width="20" height="8" valign="top">&nbsp;</td>
+        </tr>
+      </tbody></table>
+    
+
+  
+
+<style type="text/css">
+<!--
+.STYLE2 {
+font-family:"微软雅黑";
+font-size: 14px;
+color: #000000;
+line-height: 1.5;
+}
+.content2
+{
+font-family:"微软雅黑";
+font-size: 14px;
+color: #000000;
+}
+.content2_a
+{
+font-family:"微软雅黑";
+font-size: 14px;
+color: #000000;
+}
+.content2_a:link
+{
+font-family:"微软雅黑";
+font-size: 14px;
+color: #000000;
+}
+.content2_a:hover
+{
+font-family:"微软雅黑";
+font-size: 14px;
+color: #000000;
+}
+
+
+.content2:visited
+{
+font-family:"微软雅黑";
+font-size: 14px;
+color: #000000;
+}
+-->
+</style>
+ 
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+  <!--DWLayoutTable-->
+  <tbody><tr> 
+    <td width="20" height="90" valign="middle" bgcolor="f5f5f5" class="content"></td>
+    <td valign="middle" bgcolor="f5f5f5" class="content" style="border-top:1px solid #dcdcdc;"><table width="100%" border="0" cellpadding="0" cellspacing="0">
+        <tbody><tr> 
+          <td width="300" bgcolor="f5f5f5" class="content" valign="top" style="padding-top:25px;"><table width="100%" border="0" cellpadding="0" cellspacing="0">
+              <tbody><tr> 
+                <td width="85"> <div align="left"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/hlg.jpg" border="0" width="75" height="75"> 
+                  </div></td>
+                <td width="210" valign="top" class="STYLE2" style="padding-top:2px;">每天2个文档/视频<br>
+                  扫描微信二维码订阅</td>
+              </tr>
+            </tbody></table></td>
+          <td width="250" bgcolor="f5f5f5" class="content" valign="top" style="padding-top:25px;"> 
+            <table width="100%" border="0" cellpadding="0" cellspacing="0" class="content">
+              <tbody><tr> 
+                <td valign="top" class="STYLE2">订阅技术月刊<br>
+                  获得每月300个技术资源</td>
+              </tr>
+              <tr> 
+                <td height="40"><a href="http://user.uml.com.cn/reg.asp?url=" target="_blank"><img src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/manazc.jpg" border="0"></a> 
+                </td>
+              </tr>
+            </tbody></table></td>
+          <td bgcolor="f5f5f5">&nbsp;</td>
+          <td width="430" align="right" valign="top" bgcolor="f5f5f5" class="content" style="padding-top:25px;"><table width="100%" border="0" cellspacing="0" style="border-width: 0px; margin-left: 0px;">
+              <tbody><tr> 
+                <td class="STYLE2">&nbsp;</td>
+              </tr>
+            </tbody></table></td>
+        </tr>
+        <tr> 
+          <td height="25" colspan="6" bgcolor="f5f5f5"> <blockquote> 
+              <p align="right"><a href="http://www.uml.org.cn/index2.htm" target="_blank" class="content2_a">关于我们</a> 
+                | <span><a href="http://www.uml.org.cn/index3.htm" target="_blank" class="content2_a">联系我们</a></span> 
+                |<span class="content2" color="#000000">&nbsp;京ICP备10020922号&nbsp;京公海网安备110108001071号</span></p>
+            </blockquote></td>
+        </tr>
+      </tbody></table> </td>
+	  <td width="20" height="90" valign="middle" bgcolor="f5f5f5" class="content"></td>
+  </tr>
+</tbody></table>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/ga.js.下载" type="text/javascript"></script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-5476741-1");
+pageTracker._trackPageview();
+</script>
+
+
+<script src="./Netty系列之Netty线程模型-java-火龙果软件工程_files/logger.js.下载"></script><div style="position: static; width: 0px; height: 0px; border: none; padding: 0px; margin: 0px;"><div id="trans-tooltip"><div id="tip-left-top" style="background: url(&quot;chrome-extension://ccfjcepmiaackkccabgeeegeklgifffd/imgs/map/tip-left-top.png&quot;);"></div><div id="tip-top" style="background: url(&quot;chrome-extension://ccfjcepmiaackkccabgeeegeklgifffd/imgs/map/tip-top.png&quot;) repeat-x;"></div><div id="tip-right-top" style="background: url(&quot;chrome-extension://ccfjcepmiaackkccabgeeegeklgifffd/imgs/map/tip-right-top.png&quot;);"></div><div id="tip-right" style="background: url(&quot;chrome-extension://ccfjcepmiaackkccabgeeegeklgifffd/imgs/map/tip-right.png&quot;) repeat-y;"></div><div id="tip-right-bottom" style="background: url(&quot;chrome-extension://ccfjcepmiaackkccabgeeegeklgifffd/imgs/map/tip-right-bottom.png&quot;);"></div><div id="tip-bottom" style="background: url(&quot;chrome-extension://ccfjcepmiaackkccabgeeegeklgifffd/imgs/map/tip-bottom.png&quot;) repeat-x;"></div><div id="tip-left-bottom" style="background: url(&quot;chrome-extension://ccfjcepmiaackkccabgeeegeklgifffd/imgs/map/tip-left-bottom.png&quot;);"></div><div id="tip-left" style="background: url(&quot;chrome-extension://ccfjcepmiaackkccabgeeegeklgifffd/imgs/map/tip-left.png&quot;);"></div><div id="trans-content"></div></div><div id="tip-arrow-bottom" style="background: url(&quot;chrome-extension://ccfjcepmiaackkccabgeeegeklgifffd/imgs/map/tip-arrow-bottom.png&quot;);"></div><div id="tip-arrow-top" style="background: url(&quot;chrome-extension://ccfjcepmiaackkccabgeeegeklgifffd/imgs/map/tip-arrow-top.png&quot;);"></div></div></body></html>

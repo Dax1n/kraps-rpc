@@ -7,7 +7,7 @@ import net.neoremind.kraps.RpcConf
 import net.neoremind.kraps.rpc.netty.NettyRpcEnvFactory
 import net.neoremind.kraps.rpc.{RpcAddress, RpcEndpointRef, RpcEnv, RpcEnvClientConfig}
 import sparkRpc.SayHi
-
+import org.apache.spark.network.protocol.MessageEncoder
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 

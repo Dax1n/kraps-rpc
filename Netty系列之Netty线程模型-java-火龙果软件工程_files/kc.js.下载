@@ -1,0 +1,107 @@
+// JavaScript Document 
+
+{
+   
+document.writeln("<table width='100%' border='0' cellpadding='0' cellspacing='0'>");
+ 
+   
+       
+
+ 
+	
+   
+document.writeln("<tr  valign='top' ><td height='25' ><a href='http://course.uml.org.cn/xch/AgileProcess.asp' target='_blank'  class='pxgk_a'>[北京]</font> 敏捷开发过程及最佳实践 12-5</a>  </td></tr>");   
+
+    document.writeln("<tr  valign='top' ><td height='25' ><a href='http://course.uml.org.cn/course-emb/qrscs.asp'  target='_blank'  class='pxgk_a'>[北京] 嵌入式软件测试   11-16</a>  </td></tr>");   
+
+   
+    
+document.writeln("<tr  valign='top' ><td height='25' ><a href='http://course.uml.org.cn/course-ai/rgzn.asp' target='_blank'  class='pxgk_a'>[北京] 人工智能机器和深度学习  11-20</a>  </td></tr>");    
+document.writeln("<tr  valign='top' ><td height='25' ><a href='http://course.uml.org.cn/course-scm/gitscm.asp' target='_blank'  class='pxgk_a'>[北京]  Git版本控制与配置管理   11-21</a>  </td></tr>");    
+document.writeln("<tr  valign='top' ><td height='25' ><a href='http://course.uml.org.cn/course-uml/uml-EA.asp'  target='_blank'  class='pxgk_a'>[北京]  UML和EA进行系统分析设计   11-23</a>  </td></tr>");  
+  document.writeln("<tr  valign='top' ><td height='25' ><a href='http://course.uml.org.cn/course-itil/DevOpstixis.asp' target='_blank'  class='pxgk_a'>[北京]  DevOps体系实践、工具与平台   11-27</a>  </td></tr>");    
+  
+     document.writeln("<tr  valign='top' ><td height='25' ><a href='http://course.uml.org.cn/course-emb/embzjjs.asp' target='_blank'  class='pxgk_a'>[上海]  嵌入式架构设计高级实践  11-23</a>  </td></tr>");    
+        
+              
+document.writeln("<tr  valign='top' ><td height='25' ><a href='http://course.uml.org.cn/course-arch/rjjgqyj.asp' target='_blank'  class='pxgk_a'>[上海]   软件架构设计方法案例实践 11-16</a></td></tr>");    
+    document.writeln("<tr  valign='top' ><td height='25' ><a href='http://course.uml.org.cn/course-c%2B%2B/emdc.asp' target='_blank'  class='pxgk_a'>[上海]   嵌入式C高质量编程 11-21</a></td></tr>");    
+    
+ document.writeln("<tr  valign='top' ><td height='25' ><a href='http://course.uml.org.cn/course-req/reqth.asp' target='_blank'  class='pxgk_a'>[深圳]</font>     需求分析与管理  11-23</a>  </td></tr>");   
+
+document.writeln("</table>");
+
+}    
+	 
+       
+	  
+	   
+	
+	
+	
+
+
+
+
+ 
+
+  
+ 
+	  
+    
+
+	
+	
+  
+  
+    
+    
+      
+
+ 
+ 
+                   
+                                   
+
+ 
+                      
+                                   
+  
+   
+ 
+ 
+
+                    
+                              
+
+
+                   
+                                   
+
+                     
+                                   
+ 
+                     
+                                    
+
+
+
+
+ 
+                  
+ 
+                                   
+
+
+
+
+
+
+                      
+
+                    
+
+
+
+
+
