@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
-
 /**
  * Server for the efficient, low-level streaming service.
  */
@@ -61,7 +60,7 @@ public class TransportServer implements Closeable {
     /**
      * Creates a TransportServer that binds to the given host and the given port, or to any available
      * if 0. If you don't want to bind to any special host, set "hostToBind" to null.
-     * */
+     */
     public TransportServer(
             TransportContext context,
             String hostToBind,
@@ -91,8 +90,9 @@ public class TransportServer implements Closeable {
     private void init(String hostToBind, int portToBind) {
 
         IOMode ioMode = IOMode.valueOf(conf.ioMode());
-        EventLoopGroup bossGroup =
-                NettyUtils.createEventLoop(ioMode, conf.serverThreads(), "shuffle-server");
+        //TODO bossGroup线程组实际就是Acceptor线程池，负责处理客户端的TCP连接请求
+        EventLoopGroup bossGroup = NettyUtils.createEventLoop(ioMode, conf.serverThreads(), "shuffle-server");
+        //TODO workerGroup是真正负责I/O读写操作的线程组，通过ServerBootstrap的group方法进行设置，用于后续的Channel绑定。
         EventLoopGroup workerGroup = bossGroup;
 
         PooledByteBufAllocator allocator = NettyUtils.createPooledByteBufAllocator(
@@ -123,12 +123,13 @@ public class TransportServer implements Closeable {
                 for (TransportServerBootstrap bootstrap : bootstraps) {
                     rpcHandler = bootstrap.doBootstrap(ch, rpcHandler);
                 }
+                //TODO  TransportContext配置ChannelHandler
                 context.initializePipeline(ch, rpcHandler);
             }
         });
 
         InetSocketAddress address = hostToBind == null ?
-                new InetSocketAddress(portToBind): new InetSocketAddress(hostToBind, portToBind);
+                new InetSocketAddress(portToBind) : new InetSocketAddress(hostToBind, portToBind);
         channelFuture = bootstrap.bind(address);
         channelFuture.syncUninterruptibly();
 
